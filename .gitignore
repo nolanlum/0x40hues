@@ -22,3 +22,6 @@
 
 # CMake
 build/
+
+# YouCompleteMe
+*.pyc
