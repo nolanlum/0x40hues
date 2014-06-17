@@ -1,0 +1,140 @@
+<songs>
+  <song name="loop_Finale">
+    <title>Madeon - Finale</title>
+    <source>http://www.youtube.com/watch?v=j0h2u87JwyA</source>
+    <rhythm>x..xo...x...o...x..xo...x...o...x..xo...x...o...x..xo...x...oxoox..xo...x...o...x..xo...x...o...x..xo...x...o...x...o...x...oooo</rhythm>
+    <buildup>build_Finale</buildup>
+  </song>
+  
+  <song name="loop_Radioactive">
+    <title>Imagine Dragons - Radioactive</title>
+    <source>http://www.youtube.com/watch?v=YTWbRCFV7K0</source>
+    <rhythm>o...x.o.o...x.o.o...x...o...x.o.o...x.o.o...x.......x.......x...</rhythm>
+  </song>
+  
+  <song name="loop_RowRow">
+    <title>Row Row Fight the Powah (RAGEFOXX & SLUTTT MIX)</title>
+    <source>http://www.youtube.com/watch?v=qb8hQImKiUc</source>
+    <rhythm>o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...xxx.x...x...o...x...o...x...o...x...o...x...o...x...o...o...o...o...</rhythm>
+  </song>
+  
+  <song name="loop_Desire">
+    <title>Outlaw Star OST - Desire</title>
+    <source>http://www.youtube.com/watch?v=wNWR_DlewN4</source>
+    <rhythm>o...x...o.o.x.x...o.x...o.o.x...o...x...o.o.x.x...o.x...oo..x.x.o...x...o.o.x.x...o.x...oo..x.x.o...x...o.o.x.x...o.x...x...x.xx</rhythm>
+    <buildup>build_Desire</buildup>
+    <buildupRhythm>x.....x.x.x.xxx.</buildupRhythm>
+  </song>
+  
+  <song name="loop_OutOfSight">
+    <title>The Bloody Beetroots - Out of Sight</title>
+    <source>http://www.youtube.com/watch?v=yhIPGuGUPl4</source>
+    <rhythm>o.....oox.......o.o....ox.......o.....oox...o...o.o....ox.......o......ox.......o.o....ox.......o.....oox...o...o.o.....+.......</rhythm>
+  </song>
+  
+  <song name="loop_SmileWithoutAFace">
+    <title>Buckethead - Smile Without a Face</title>
+    <source>http://www.youtube.com/watch?v=vFrVmAxEBA0</source>
+    <rhythm>o......ox.....o.o.......x.......o......ox.....o.o.....o.x.ooooooo......ox.....o.o.......x.......o......ox.....o.o.....o.x.oooooo</rhythm>
+    <buildup>build_SmileWithoutAFace</buildup>
+    <buildupRhythm>..o.....-:x.......o.....-:x.......o.....-:x.......o.....-:x.......o.....-:x.......o.....-:x.x.....</buildupRhythm>
+  </song>
+  
+  <song name="loop_CourtshipDate">
+    <title>Crystal Castles - Courtship Dating</title>
+    <source>http://www.youtube.com/watch?v=Y1svPxH2MbI</source>
+    <rhythm>o...x.....o.x...o...x.....o.x...o...x.....o.x...o...x.....o.+...</rhythm>
+  </song>
+  
+  <song name="loop_Vordhosbn">
+    <title>Aphex Twin - Vordhosbn</title>
+    <source>http://www.youtube.com/watch?v=Qwe10iDlFQo</source>
+    <rhythm>o...x..---o.x...-.o.x------.x..-o.-.x.o..-.ox-.-----x-o-------o-o...x..---o.x...-.o.x------.x..-o.-.x.o..-.ox-.-----x-o-------o-o...x..---o.x...-.o.x------.x..-o.-.x.o..-.ox-.-----x-o-------o-o...x..---o.x...-.o.x------.x..-o.-.x.o..-.ox-.-----x-o-------o-o...x..---o.x...-.o.x------.x..-o.-.x.o..-.ox-.-----x-o-------o-o...x..---o.x...-.o.x------.x..-o.-.x.o..-.ox-.-----x-o-------o-</rhythm>
+    <buildup>build_Vordhosbn</buildup>
+    <buildupRhythm>:...x..------.......-.-----.+...............x..-.-.--.-.-.-.---.</buildupRhythm>
+  </song>
+  
+  <song name="loop_Orange">
+    <title>Culprate - Orange Sunrise, Sunset</title>
+    <source>http://www.youtube.com/watch?v=ft0GbGnEtA0</source>
+    <rhythm>o.o.x..o.x.x....o..ox......x....o...x....o.x....o...x....o.xx...o.o.x..o.x.x....o..ox......x....o...x....o.x...xo...x....o.xx...</rhythm>
+  </song>
+  
+  <song name="loop_Spoiler">
+    <title>Hyper - Spoiler</title>
+    <source>http://soundcloud.com/hyper/hyper-spoiler</source>
+    <rhythm>o+......x+......o+......x+......o+......x+......o+......x+......o+......x+......o+......x+......o+......x+......o+..............o+......x+......o+......x+......o+......x+......o+......x+......o+......x+......o+......x+......o---------------o+......x.......</rhythm>
+  </song>
+  
+  <song name="loop_Kryptonite">
+    <title>DJ Fresh - Kryptonite</title>
+    <source>http://www.youtube.com/watch?v=9H7N6mUtrxI</source>
+    <rhythm>o.x..ox.o.x..ox.o.x..ox.o.x..ox.o.x..xx.o.x..xx.o.x..xx.o.x..xx.o.x..ox.o.x..ox.o.x..ox.o.x..ox.o.x..xx.o.x..xx.o.xx.xx.o.x..xx.</rhythm>
+  </song>
+  
+  <song name="loop_BeyondRightNow">
+    <title>STS9 - Beyond Right Now (Glitch Mob Remix)</title>
+    <source>http://www.youtube.com/watch?v=96rWXxKEJLc</source>
+    <rhythm>o.......x...o.......o...xxxxx...o.o.....x...o.......o...xxxxx...o.......x...o.......o...xxxxx...o.......x...o...o.......+.......o.......x...o.......o...xxxxx...o.o.....x...o...-.-.o.-.xxx+x+x+o.......x...o.......o...xxxxx...o.......x...o...o...o.o.+.......</rhythm>
+  </song>
+  
+  <song name="loop_HoldMyLiquor">
+    <title>Kanye West - Hold My Liquor</title>
+    <source>http://www.youtube.com/watch?v=wWCAg5IDAFk</source>
+    <rhythm>o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...o...............+...</rhythm>
+  </song>
+  
+  <song name="loop_Heart">
+    <title>Savant - Heart</title>
+    <source>http://www.youtube.com/watch?v=sOnVOg1658U</source>
+    <rhythm>o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x.-.o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...xx-.</rhythm>
+    <buildup>build_Heart</buildup>
+    <buildupRhythm>o....</buildupRhythm>
+  </song>
+  
+  <song name="loop_FuturePeople">
+    <title>SynSUN - Future People (Sonic Elysium Remix)</title>
+    <source>http://www.youtube.com/watch?v=YTWbRCFV7K0</source>
+    <rhythm>o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o---o---o-------o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...o...x...:.:.:.:.:.:.:.+.....x+..x+..x+..</rhythm>
+  </song>
+  
+  <song name="loop_Nanox">
+    <title>Singularity - Nanox</title>
+    <source>http://www.youtube.com/watch?v=YTWbRCFV7K0</source>
+    <rhythm>o.....o.x...o.......o...x.......o.....o.x...o.......o...x.......|x|x|x|.x...|x|x|x|xo...x.......|x|x|x|.x...|x|x|x|xo...x.......o.....o.x...o.......o...x.......o.....o.x...o.......o...x.......|x|x|x|.x...|x|x|x|xo...x.......|x|x|x|.x...|x|x|x|xo...x.......</rhythm>
+  </song>
+  
+  <song name="loop_BlackEarth2">
+    <title>Dayseeker - Black Earth</title>
+    <source>http://www.youtube.com/watch?v=YTWbRCFV7K0</source>
+    <rhythm>--------o.....o.....o...+...............................x.......x.x.x.x.o.....o.....o...+...........................x...x.......--------o.....o.....o...+...............................x.......x.x.x.x.o.....o.....o...+...........................x...x.......</rhythm>
+  </song>
+  
+  <song name="loop_EarlyMorningMay">
+    <title>Ronald Jenkees - Early Morning May</title>
+    <source>http://www.youtube.com/watch?v=RzcNzJB-4-E</source>
+    <rhythm>o.......x.......o.......x.....o.o.......o.......o...o...o...o...o.......x.......o.......x.....o.o.......x.......o.......x.....o.</rhythm>
+  </song>
+  
+  <song name="loop_Weapon">
+    <title>deadmau5 - Raise Your Weapon (Madeon Remix)</title>
+    <source>http://www.youtube.com/watch?v=HuC2MUmQaG4</source>
+    <rhythm>o.-.x...o...x...o.-.x...o...x...o.-.x...o...x...o.-.x...o...x...o.-.x...o...x...o.-.x...o...x...o..o..o...o...o.............x...</rhythm>
+    <buildup>build_Weapon</buildup>
+    <buildupRhythm>----</buildupRhythm>
+  </song>
+  
+  <song name="loop_LoveOnHaightStreet">
+    <title>BT - Love On Haight Street </title>
+    <source>http://www.youtube.com/watch?v=YTWbRCFV7K0</source>
+    <rhythm>o.....x.........o.ox....oo..o...x....o...o..x......o..o..x...o.....o..x....oo..o...x....+...o+..x.+...x..o.ox.....o..o...x.....oo..o..x.....o.o.o..x..oooo......x..o.....o..x.....oo..o..x.....o..oo..x............x.......oo.ox.....oo..o..x.....o...+.........</rhythm>
+  </song>
+  
+  <song name="loop_TheClockmaker">
+    <title>Vexare - The Clockmaker</title>
+    <source>http://www.youtube.com/watch?v=sOnVOg1658U</source>
+    <rhythm>o.......-...+...x...-----...-...o..:..:.o....:..x.......o...-...o...........o...x.....x.....x...o...............+...............o.......----o--.x.......-...-...o..:..:.o....:..x.......o.-.-.-.o...........o...x...............o.......o.......x...............:...:...:...:.+.x...-----...-...o..:..:.o....:..x.......o...-...o...........o...x.....x.....x...o...............+...............o...........----x.....-.-...-...o..:..:.o....:..x.......o.-.-.-.o...........o...x...............o.......o.......x.....x.....-...</rhythm>
+    <buildup>build_TheClockmaker</buildup>
+    <buildupRhythm>+....</buildupRhythm>
+  </song>
+</songs>
