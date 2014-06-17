@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 # For optimized builds.
 OPTION(RELEASE "Build a release executable (i.e. no debug info, optimized binary)" OFF)
-if (RELEASE)
+IF (RELEASE)
     add_compile_options(-O2)
 ELSE (RELEASE)
     add_compile_options(-ggdb)
