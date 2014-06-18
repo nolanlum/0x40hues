@@ -1,7 +1,13 @@
 PROJECT(0x40HUES)
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # Release vs debug.
+# Default build type to debug if not set
+IF(NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE Debug CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+        FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_CXX_FLAGS_Debug -ggdb -O0)
 set(CMAKE_CXX_FLAGS_Release -O2)
 add_compile_options(-Wall)
