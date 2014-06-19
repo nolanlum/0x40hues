@@ -8,12 +8,18 @@ link_directories(
     ${0x40HUES_BINARY_DIR}/pugixml)
 
 SET(HUES_HEADERS
+    "common.h"
     "respack.h")
 
 SET(HUES_SOURCES
     ${HUES_HEADERS}
     "respack.cpp"
     "main.cpp")
+
+foreach(f IN LISTS HUES_SOURCES)
+    get_filename_component(b ${f} NAME)
+    set_source_files_properties(${f} PROPERTIES COMPILE_DEFINITIONS "__SRCFILE__=\"${b}\"")
+endforeach()
 
 add_executable(0x40hues ${HUES_SOURCES})
 target_link_libraries(0x40hues ${CMAKE_THREAD_LIBS_INIT})

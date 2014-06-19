@@ -13,7 +13,7 @@
 
 int main() {
   ResourcePack pack("../../respacks/Default/");
-  std::cout << "Hello world." << std::endl;
+  LOG("Hello world.");
 
   return 0;
 }
