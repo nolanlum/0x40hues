@@ -16,6 +16,7 @@ SET(HUES_SOURCES
     "main.cpp")
 
 add_executable(0x40hues ${HUES_SOURCES})
+target_link_libraries(0x40hues ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(0x40hues ${GLUT_LIBRARIES})
 target_link_libraries(0x40hues ${OPENGL_LIBRARIES})
 target_link_libraries(0x40hues pugixml)
