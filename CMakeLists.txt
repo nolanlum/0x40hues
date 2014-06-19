@@ -10,7 +10,7 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_CXX_FLAGS_Debug -ggdb -O0)
 set(CMAKE_CXX_FLAGS_Release -O2)
-add_compile_options(-Wall)
+add_compile_options(-Wall -Werror -std=c++11)
 
 # Build statically because it's cool.
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")

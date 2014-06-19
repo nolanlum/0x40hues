@@ -1,7 +1,18 @@
-include_directories(${0x40HUES_SOURCE_DIR}/pugixml ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
-link_directories(${0x40HUES_BINARY_DIR}/pugixml)
+include_directories(
+    ${0x40HUES_SOURCE_DIR}/src
+    ${0x40HUES_SOURCE_DIR}/pugixml
+    ${OPENGL_INCLUDE_DIRS}
+    ${GLUT_INCLUDE_DIRS})
+link_directories(
+    ${0x40HUES_SOURCE_DIR}/src
+    ${0x40HUES_BINARY_DIR}/pugixml)
+
+SET(HUES_HEADERS
+    "respack.h")
 
 SET(HUES_SOURCES
+    ${HUES_HEADERS}
+    "respack.cpp"
     "main.cpp")
 
 add_executable(0x40hues ${HUES_SOURCES})

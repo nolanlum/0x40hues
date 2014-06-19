@@ -9,9 +9,11 @@
 
 #include <pugixml.hpp>
 
-int main() {
-	pugi::xml_document doc;
-    std::cout << "Hello world." << std::endl;
+#include <respack.h>
 
-    return 0;
+int main() {
+  ResourcePack pack("../../respacks/Default/");
+  std::cout << "Hello world." << std::endl;
+
+  return 0;
 }
