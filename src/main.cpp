@@ -14,6 +14,7 @@
 int main() {
   ResourcePack pack("../../respacks/Default/");
   LOG("Hello world.");
+  DEBUG("Debug, world!");
 
   return 0;
 }

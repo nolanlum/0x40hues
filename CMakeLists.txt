@@ -8,8 +8,8 @@ IF(NOT CMAKE_BUILD_TYPE)
         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
         FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
-set(CMAKE_CXX_FLAGS_Debug -ggdb -O0)
-set(CMAKE_CXX_FLAGS_Release -O2)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -ggdb -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g0 -O2")
 add_compile_options(-Wall -Werror -std=c++11)
 
 # Build statically because it's cool.

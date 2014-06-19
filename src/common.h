@@ -11,12 +11,18 @@
     TypeName& operator=(TypeName const&) = delete;
 
 // Ugly logging to stdout.
-#define LOG(message) { \
+#define _DO_LOG(type, message) { \
   std::string fn = __transform_pretty_function(__PRETTY_FUNCTION__); \
   std::string time = __format_log_time(); \
-  std::cout << "[I " << time << " " << fn << " " \
+  std::cout << "[" type " " << time << " " << fn << " " \
       << __SRCFILE__ << ":" << __LINE__ << "] " << (message) << std::endl; \
 }
+#define LOG(message) _DO_LOG("I", message)
+#ifdef _DEBUG
+#define DEBUG(message) _DO_LOG("D", message)
+#else // DEBUG
+#define DEBUG(message) {}
+#endif // DEBUG
 
 inline std::string __transform_pretty_function(const std::string& fn) {
   size_t colons = fn.find("::");
