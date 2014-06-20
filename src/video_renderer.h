@@ -20,14 +20,27 @@ class VideoRenderer {
 
     /**
      * Makes an empty window
+     * @param argc unmodified main argc
+     * @param argv unmodified main argv
      */
-    void InitWindow();
+    void InitWindow(int argc, char **argv);
 
     /**
      * Draw a single frame.
      * VideoRenderer probably shouldn't handle timing
+     * The general idea is to set an image and color then call DrawFrame()
      */
-    void DrawFrame(); //TODO: Needs argument signature
+    friend void DrawFrame(); //TODO: Needs argument signature
+
+    /**
+     * Set an Image for the next DrawFrame()
+     */
+    void SetImage();
+
+    /**
+     * Set a color for the next DrawFrame()
+     */
+    void SetColor();
 
     /**
      * Special beats.
@@ -43,6 +56,6 @@ class VideoRenderer {
       IMAGE_ONLY
     };
   private:
-}
+};
 
 #endif

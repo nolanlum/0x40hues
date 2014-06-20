@@ -9,12 +9,14 @@ link_directories(
 
 SET(HUES_HEADERS
     "common.h"
-    "respack.h")
+    "respack.h"
+    "video_renderer.h")
 
 SET(HUES_SOURCES
     ${HUES_HEADERS}
     "respack.cpp"
-    "main.cpp")
+    "main.cpp"
+    "video_renderer.cpp")
 
 foreach(f IN LISTS HUES_SOURCES)
     get_filename_component(b ${f} NAME)
