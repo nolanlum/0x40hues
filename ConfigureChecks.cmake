@@ -1,8 +1,6 @@
 INCLUDE(CheckIncludeFile)
 INCLUDE(CheckLibraryExists)
 
-check_include_file(windows.h HAVE_WINDOWS_H)
-
 IF(WIN32)
     SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 ELSE(WIN32)
