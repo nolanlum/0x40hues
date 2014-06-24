@@ -136,7 +136,8 @@ public:
     BLACKOUT,
     SHORT_BLACKOUT,
     COLOR_ONLY,
-    IMAGE_ONLY
+    IMAGE_ONLY,
+    NO_TRANSITION
   };
 
   static Beat ParseBeatCharacter(const char beatChar) {
@@ -148,8 +149,9 @@ public:
       case '|': return Beat::SHORT_BLACKOUT;
       case ':': return Beat::COLOR_ONLY;
       case '*': return Beat::IMAGE_ONLY;
+      case '.': return Beat::NO_TRANSITION;
     }
-    return Beat::NO_BLUR;
+    return Beat::NO_TRANSITION;
   }
 
 private:
