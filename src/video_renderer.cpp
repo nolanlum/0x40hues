@@ -14,8 +14,8 @@
 #include <GL/glut.h>
 #endif
 
-#include <common.h>
-#include <video_renderer.h>
+#include <common.hpp>
+#include <video_renderer.hpp>
 
 extern void DrawFrame();
 

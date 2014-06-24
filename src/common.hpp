@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include <config.h>
+
 // Shorthand to disable a class's copy constructor and assignment operator.
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
     TypeName(TypeName const&) = delete;    \
@@ -17,6 +19,7 @@
   std::cout << "[" type " " << time << " " << fn << " " \
       << __SRCFILE__ << ":" << __LINE__ << "] " << (message) << std::endl; \
 }
+#define ERROR(message) _DO_LOG("E", message)
 #define LOG(message) _DO_LOG("I", message)
 #ifdef _DEBUG
 #define DEBUG(message) _DO_LOG("D", message)

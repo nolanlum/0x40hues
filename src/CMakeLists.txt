@@ -2,15 +2,17 @@ include_directories(
     ${0x40HUES_SOURCE_DIR}/src
     ${0x40HUES_SOURCE_DIR}/pugixml
     ${OPENGL_INCLUDE_DIRS}
-    ${GLUT_INCLUDE_DIRS})
+    ${GLUT_INCLUDE_DIRS}
+    ${0x40HUES_BINARY_DIR})
 link_directories(
-    ${0x40HUES_SOURCE_DIR}/src
+    ${0x40HUES_BINARY_DIR}/src
     ${0x40HUES_BINARY_DIR}/pugixml)
 
 SET(HUES_HEADERS
-    "common.h"
-    "respack.h"
-    "video_renderer.h")
+    "common.hpp"
+    "filesystem.hpp"
+    "respack.hpp"
+    "video_renderer.hpp")
 
 SET(HUES_SOURCES
     ${HUES_HEADERS}

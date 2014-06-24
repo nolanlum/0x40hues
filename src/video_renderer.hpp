@@ -1,7 +1,7 @@
 #ifndef HUES_VIDEO_RENDERER_H_
 #define HUES_VIDEO_RENDERER_H_
 
-#include <common.h>
+#include <common.hpp>
 
 class VideoRenderer {
 
@@ -42,19 +42,6 @@ class VideoRenderer {
      */
     void SetColor();
 
-    /**
-     * Special beats.
-     * Image/color changes on any of them
-     */
-    enum BEAT {
-      VERTICAL_BLUR,
-      HORIZONTAL_BLUR,
-      NO_BLUR,
-      BLACKOUT,
-      SHORT_BLACKOUT,
-      COLOR_ONLY,
-      IMAGE_ONLY
-    };
   private:
 };
 

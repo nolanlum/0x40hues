@@ -12,12 +12,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -ggdb -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g0 -O2")
 add_compile_options(-Wall -Werror -std=c++11)
 
-# Build statically because it's cool.
-# But only on Windows. I guess.
-IF(WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS "-static")
-ENDIF(WIN32)
-
 # For platform-specific library checks.
 INCLUDE(ConfigureChecks.cmake)
 

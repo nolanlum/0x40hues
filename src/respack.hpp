@@ -1,10 +1,11 @@
 #ifndef HUES_RESPACK_H_
 #define HUES_RESPACK_H_
 
+#include <locale>
 #include <string>
 #include <vector>
 
-#include <common.h>
+#include <common.hpp>
 
 using namespace std;
 
@@ -22,6 +23,7 @@ public:
    * @param path the root path of the resource pack.
    */
   ResourcePack(const string& path) : base_path(path) { }
+  ~ResourcePack();
 
   /**
    * Initialize the ResourcePack, parsing all XML metadata and making the List* methods callable.
@@ -53,7 +55,13 @@ public:
   AudioResource* GetAudioResource(const string& loop_name) const;
 
 private:
+  void ParseSongXmlFile();
+  void ParseImageXmlFile();
+
   const string base_path;
+
+  vector<AudioResource*> song_list;
+  vector<ImageResource*> image_list;
 };
 
 class ImageResource {
@@ -63,20 +71,40 @@ class ImageResource {
 
 public:
 
+  /** Alignment for upscaled images and non-matching aspect ratios. */
+  enum class Align {
+    LEFT,
+    CENTER,
+    RIGHT
+  };
+
   /**
    * Constructs a new, named ImageResource.
    *
    * @param base_path the base path of the containing ResourcePack.
    * @param name the name of this ImageResource.
    */
-  ImageResource(const string& base_path, const string& name) :
-      base_path(base_path), image_name(name) { }
+  ImageResource(const string& base_path, const string& name, const Align alignment) :
+      base_path(base_path), image_name(name), alignment(alignment) { }
 
   void ReadAndDecode(); // TODO(nolm): fix this signature.
+
+  /** C++ enums are le suck. */
+  static Align ParseAlignmentString(const string& align) {
+    if (align == "left") {
+      return Align::LEFT;
+    } else if (align == "center") {
+      return Align::CENTER;
+    } else if (align == "right") {
+      return Align::RIGHT;
+    }
+    return Align::CENTER;
+  }
 
 private:
   const string base_path;
   const string image_name;
+  const Align alignment;
 };
 
 class AudioResource {
@@ -92,25 +120,49 @@ public:
    * @param base_path the base path of the containing ResourcePack.
    * @param name the name of this AudioResource.
    */
-  AudioResource(const string& base_path, const string& name) :
-      base_path(base_path), loop_name(name) { }
+  AudioResource(const string& base_path, const string& name, const string& buildup_name) :
+      base_path(base_path), loop_name(name), buildup_name(buildup_name) { }
 
   /** Returns whether or not this song has a buildup. */
-  bool HasBuildup() const;
+  bool HasBuildup() const { return !this->buildup_name.empty(); }
 
-  string GetBuildupBeatmap() const;
-  string GetLoopBeatmap() const;
+  string GetBuildupBeatmap() const { return this->buildup_beatmap; }
+  string GetLoopBeatmap() const { return this->loop_beatmap; }
+
+  enum class Beat {
+    VERTICAL_BLUR,
+    HORIZONTAL_BLUR,
+    NO_BLUR,
+    BLACKOUT,
+    SHORT_BLACKOUT,
+    COLOR_ONLY,
+    IMAGE_ONLY
+  };
+
+  static Beat ParseBeatCharacter(const char beatChar) {
+    switch (beatChar) {
+      case 'x': return Beat::VERTICAL_BLUR;
+      case 'o': return Beat::HORIZONTAL_BLUR;
+      case '-': return Beat::NO_BLUR;
+      case '+': return Beat::BLACKOUT;
+      case '|': return Beat::SHORT_BLACKOUT;
+      case ':': return Beat::COLOR_ONLY;
+      case '*': return Beat::IMAGE_ONLY;
+    }
+    return Beat::NO_BLUR;
+  }
 
 private:
 
-  void SetBuildupBeatmap(const string& beatmap);
-  void SetLoopBeatmap(const string& beatmap);
+  void SetBuildupBeatmap(const string& beatmap) { this->buildup_beatmap = beatmap; }
+  void SetLoopBeatmap(const string& beatmap) { this->loop_beatmap = beatmap; }
 
   string buildup_beatmap;
   string loop_beatmap;
 
   const string base_path;
   const string loop_name;
+  const string buildup_name;
 };
 
 #endif // HUES_RESPACK_H_
