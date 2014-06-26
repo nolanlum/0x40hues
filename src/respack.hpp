@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <png.h>
+
 #include <common.hpp>
 
 using namespace std;
@@ -87,7 +89,15 @@ public:
   ImageResource(const string& base_path, const string& name, const Align alignment) :
       base_path(base_path), image_name(name), alignment(alignment) { }
 
-  void ReadAndDecode(); // TODO(nolm): fix this signature.
+  /**
+   * Reads this image resource into an OpenGL-compatible RGB(A) byte-array bitmap.
+   * The caller is responsible for deallocating the returned byte array once finished.
+   *
+   * @param width OPTIONAL: a pointer to receive the decoded image's true width.
+   * @param height OPTIONAL: a pointer to receive the decoded image's true height.
+   * @param color_type OPTIONAL: a pointer to receive the decoded image's color type (usually RGBA).
+   */
+  png_byte* ReadAndDecode(int *width, int *height, int *color_type);
 
   /** C++ enums are le suck. */
   static Align ParseAlignmentString(const string& align) {
