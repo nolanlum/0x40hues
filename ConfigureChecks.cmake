@@ -5,8 +5,6 @@ INCLUDE(CheckLibraryExists)
 IF(WIN32)
     SET(CMAKE_EXE_LINKER_FLAGS "-static")
     SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-ELSE(WIN32)
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 ENDIF(WIN32)
 
 # Ignore depreciation warnings on OSX because GLUT is deprecated.
@@ -19,6 +17,16 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PNG REQUIRED)
+
+# Unix requires some extra libraries for OpenGL???
+IF(UNIX)
+    SET(OPENGL_LIBRARIES
+        ${OPENGL_LIBRARIES}
+        xcb
+        Xxf86vm
+        dl
+    )
+ENDIF(UNIX)
 
 # Check for some include files.
 check_include_files(dirent.h HAVE_DIRENT_H)
