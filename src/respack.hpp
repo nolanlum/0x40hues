@@ -43,18 +43,16 @@ public:
    * @param song_list a vector to place the song list into.
    * @return the number of songs present in this resource pack.
    */
-  int ListSongs(vector<string>* const song_list) const;
+  int GetAllSongs(vector<AudioResource*>& song_list) const;
   /**
    * Populate a vector with a list of images present in this resource pack.
    *
    * @param images_list a vector to place the images list into.
    * @return the number of images present in this resource pack.
    */
-  int ListImages(vector<string>* const image_list) const;
+  int GetAllImages(vector<ImageResource*>& image_list) const;
 
   string GetBasePath() const;
-  ImageResource* GetImageResource(const string& image_name) const;
-  AudioResource* GetAudioResource(const string& loop_name) const;
 
 private:
   void ParseSongXmlFile();
@@ -130,11 +128,15 @@ public:
    * @param base_path the base path of the containing ResourcePack.
    * @param name the name of this AudioResource.
    */
-  AudioResource(const string& base_path, const string& name, const string& buildup_name) :
-      base_path(base_path), loop_name(name), buildup_name(buildup_name) { }
+  AudioResource(const string& base_path, const string& song_title,
+      const string& loop_name, const string& buildup_name) :
+      base_path(base_path), song_title(song_title),
+      loop_name(loop_name), buildup_name(buildup_name) { }
 
   /** Returns whether or not this song has a buildup. */
   bool HasBuildup() const { return !this->buildup_name.empty(); }
+
+  string GetName() const { return this->loop_name; }
 
   string GetBuildupBeatmap() const { return this->buildup_beatmap; }
   string GetLoopBeatmap() const { return this->loop_beatmap; }
@@ -173,6 +175,7 @@ private:
   string loop_beatmap;
 
   const string base_path;
+  const string song_title;
   const string loop_name;
   const string buildup_name;
 };

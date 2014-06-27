@@ -54,8 +54,8 @@ void ResourcePack::ParseSongXmlFile() {
   xml_node root = doc.first_child();
   for (xml_node song_node : root.children()) {
     AudioResource *song = new AudioResource(
-        this->base_path, song_node.attribute("name").value(),
-        song_node.child("buildup").child_value());
+        this->base_path, song_node.child("title").child_value(),
+        song_node.attribute("name").value(), song_node.child("buildup").child_value());
 
     song->SetLoopBeatmap(song_node.child("rhythm").child_value());
     if (song_node.child("buildupRhythm")) {
@@ -64,7 +64,7 @@ void ResourcePack::ParseSongXmlFile() {
     this->song_list.push_back(song);
 
     DEBUG("Found song:");
-    DEBUG("    Name: " + string(song->loop_name));
+    DEBUG("    Title: " + string(song->song_title));
     DEBUG("    Buildup? " + string(song->HasBuildup() ? "Yes" : "No"));
   }
 
@@ -92,6 +92,16 @@ void ResourcePack::ParseImageXmlFile() {
   }
 
   LOG("Found [" + to_string(this->image_list.size()) + "] images.");
+}
+
+int ResourcePack::GetAllSongs(vector<AudioResource*>& song_list) const {
+  song_list.insert(song_list.end(), this->song_list.begin(), this->song_list.end());
+  return this->song_list.size();
+}
+
+int ResourcePack::GetAllImages(vector<ImageResource*>& image_list) const {
+  image_list.insert(image_list.end(), this->image_list.begin(), this->image_list.end());
+  return this->image_list.size();
 }
 
 // =====================================================================

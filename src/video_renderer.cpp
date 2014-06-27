@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include <common.hpp>
+#include <video_renderer.hpp>
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -14,25 +17,33 @@
 #include <GL/glut.h>
 #endif
 
-#include <common.hpp>
-#include <video_renderer.hpp>
+// All GLUT callbacks are contained in the HuesRenderer namespace to avoid polluting the global
+// namespace with "private" functions. It's gross.
+namespace HuesRenderer {
 
-extern void DrawFrame();
+  // This is terrible and not at all thread-safe but it can't be helped.
+  static VideoRenderer *huesVideoRenderer;
 
-VideoRenderer::VideoRenderer() {}
-VideoRenderer::~VideoRenderer() {}
+  void DrawFrameCallback() {
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set background color to black and opaque
+    glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
+    glFlush(); //Render
+  }
 
-void VideoRenderer::InitWindow(int argc, char **argv) {
-  glutInit(&argc, argv);
-  glutCreateWindow("0x40 Hues");
-  glutInitWindowSize(800, 600);
-  glutInitWindowPosition(50, 50);
-  glutDisplayFunc(DrawFrame);
-  glutMainLoop();
 }
 
-void DrawFrame() {
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
-  glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
-  glFlush(); //Render
+VideoRenderer::VideoRenderer(int argc, char *argv[]) {
+  glutInit(&argc, argv);
+}
+VideoRenderer::~VideoRenderer() {}
+
+void VideoRenderer::DoGlutLoop() {
+  HuesRenderer::huesVideoRenderer = this;
+
+  glutInitWindowSize(800, 600);
+  glutInitWindowPosition(50, 50);
+
+  glutCreateWindow("0x40 Hues");
+  glutDisplayFunc(HuesRenderer::DrawFrameCallback);
+  glutMainLoop();
 }

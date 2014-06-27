@@ -14,8 +14,8 @@ int main(int argc, char **argv) {
   ResourcePack pack("../respacks/Default/");
   pack.Init();
 
-  //VideoRenderer v;
-  //v.InitWindow(argc, argv);
+  //VideoRenderer v(argc, argv);
+  //v.DoGlutLoop();
 
   return 0;
 }
