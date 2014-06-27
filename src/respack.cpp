@@ -42,24 +42,24 @@ bool ResourcePack::Init() {
 }
 
 void ResourcePack::ParseSongXmlFile() {
-  string songXmlFileName = this->base_path + "songs.xml";
+  string song_xml_filename = this->base_path + "songs.xml";
   xml_document doc;
-  xml_parse_result parseResult = doc.load_file(songXmlFileName.c_str());
+  xml_parse_result parse_result = doc.load_file(song_xml_filename.c_str());
 
-  if (parseResult.status != xml_parse_status::status_ok) {
-    ERROR("Could not parse [songs.xml]: " + string(parseResult.description()));
+  if (parse_result.status != xml_parse_status::status_ok) {
+    ERROR("Could not parse [songs.xml]: " + string(parse_result.description()));
     return;
   }
 
   xml_node root = doc.first_child();
-  for (xml_node songNode : root.children()) {
+  for (xml_node song_node : root.children()) {
     AudioResource *song = new AudioResource(
-        this->base_path, songNode.attribute("name").value(),
-        songNode.child("buildup").child_value());
+        this->base_path, song_node.attribute("name").value(),
+        song_node.child("buildup").child_value());
 
-    song->SetLoopBeatmap(songNode.child("rhythm").child_value());
-    if (songNode.child("buildupRhythm")) {
-      song->SetBuildupBeatmap(songNode.child("buildupRhythm").child_value());
+    song->SetLoopBeatmap(song_node.child("rhythm").child_value());
+    if (song_node.child("buildupRhythm")) {
+      song->SetBuildupBeatmap(song_node.child("buildupRhythm").child_value());
     }
     this->song_list.push_back(song);
 
@@ -72,20 +72,20 @@ void ResourcePack::ParseSongXmlFile() {
 }
 
 void ResourcePack::ParseImageXmlFile() {
-  string imageXmlFileName = this->base_path + "images.xml";
+  string image_xml_filename = this->base_path + "images.xml";
   xml_document doc;
-  xml_parse_result parseResult = doc.load_file(imageXmlFileName.c_str());
+  xml_parse_result parse_result = doc.load_file(image_xml_filename.c_str());
 
-  if (parseResult.status != xml_parse_status::status_ok) {
-    ERROR("Could not parse [images.xml]: " + string(parseResult.description()));
+  if (parse_result.status != xml_parse_status::status_ok) {
+    ERROR("Could not parse [images.xml]: " + string(parse_result.description()));
     return;
   }
 
   xml_node root = doc.first_child();
-  for (xml_node imageNode : root.children()) {
+  for (xml_node image_node : root.children()) {
     ImageResource *image = new ImageResource(
-        this->base_path, imageNode.attribute("name").value(),
-        ImageResource::ParseAlignmentString(imageNode.child("align").child_value()));
+        this->base_path, image_node.attribute("name").value(),
+        ImageResource::ParseAlignmentString(image_node.child("align").child_value()));
     this->image_list.push_back(image);
 
     DEBUG("Found image: " + image->image_name);
