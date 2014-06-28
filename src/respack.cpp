@@ -186,7 +186,9 @@ png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type)
     *color_type = temp_color_type;
   }
 
+  // Make sure we have an expected image type.
   assert(png_get_bit_depth(png_ptr, info_ptr) == 8);
+  assert((temp_color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA);
 
   // glTexImage2d requires rows to be 4-byte aligned
   rowbytes = png_get_rowbytes(png_ptr, info_ptr);

@@ -21,20 +21,18 @@ void* video_renderer(void *) {
 int main(int argc, char **argv) {
   p = new ResourcePack("../respacks/Default/");
   p->Init();
-
   v = new VideoRenderer();
 
   pthread_t render_thread_id;
   pthread_create(&render_thread_id, NULL, video_renderer, NULL);
 
   // What is a race condition?
-  sleep(2);
-  v->SetImage("Senjougahara", AudioResource::Beat::NO_BLUR);
-  sleep(2);
-  v->SetImage("Suiseiseki", AudioResource::Beat::NO_BLUR);
-  sleep(2);
-  v->SetImage("Kirisame Marisa", AudioResource::Beat::NO_BLUR);
-  sleep(2);
+  vector<ImageResource*> imgs;
+  p->GetAllImages(imgs);
+  for (;;) {
+    sleep(2);
+    v->SetImage(imgs[rand() % imgs.size()]->GetName(), AudioResource::Beat::NO_BLUR);
+  }
 
   pthread_join(render_thread_id, NULL);
   pthread_exit(0);

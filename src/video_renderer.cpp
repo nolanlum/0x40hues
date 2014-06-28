@@ -55,6 +55,13 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   glutDisplayFunc(HuesRenderer::DrawFrameCallback);
   glutReshapeFunc(HuesRenderer::ResizeCallback);
   glutIdleFunc(HuesRenderer::IdleCallback);
+
+  // Clear the window and display a solid color.
+  glClearColor(1, 1, 1, 1);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glutSwapBuffers();
+
+  glClearColor(.3, .6, .7, 1);
 }
 
 void VideoRenderer::DoGlutLoop() {
@@ -130,8 +137,6 @@ bool VideoRenderer::SetImage(const string& image_name, const AudioResource::Beat
 void VideoRenderer::DrawFrame() {
   pthread_rwlock_rdlock(&this->render_lock);
 
-  glClearColor(.3, .6, .7, 1);
-  // Clear the color buffer (background)
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Make sure we have a image to draw, first.
@@ -147,7 +152,6 @@ void VideoRenderer::DrawFrame() {
   }
 
   // Render.
-  glFlush();
   glutSwapBuffers();
 
   pthread_rwlock_unlock(&this->render_lock);
