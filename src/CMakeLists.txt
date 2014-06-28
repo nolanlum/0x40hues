@@ -6,10 +6,6 @@ include_directories(
     ${GLUT_INCLUDE_DIRS}
     ${PNG_INCLUDE_DIRS}
     ${0x40HUES_BINARY_DIR})
-link_directories(
-    ${0x40HUES_BINARY_DIR}/glew
-    ${0x40HUES_BINARY_DIR}/src
-    ${0x40HUES_BINARY_DIR}/pugixml)
 
 SET(HUES_HEADERS
     "common.hpp"
