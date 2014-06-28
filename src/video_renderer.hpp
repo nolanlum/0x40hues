@@ -76,6 +76,8 @@ class VideoRenderer {
 
     /** Compiles our hard light (and eventually Gaussian blur) shaders. */
     void CompileShaders();
+    /** Compiles a shader. Boilerplate sucks. */
+    GLuint CompileShader(const char *&shader_text, GLenum shader_type);
 
     /** Draws a frame based on the parameters currently set in this class instance. */
     void DrawFrame();
@@ -91,13 +93,16 @@ class VideoRenderer {
     ImageResource *current_image = NULL;
     int current_color = 0;
 
+    GLuint pass_through_vertex_shader;
     GLuint hard_light_fragment_shader;
+    GLuint shader_program;
 
     pthread_rwlock_t render_lock;
 
     // THIS IS HELL AND YOU ARE THE DEVIL.
     static VideoRenderer *instance;
 
+    static const char *kPassThroughVertexShader;
     static const char *kHardLightFragmentShader;
 };
 

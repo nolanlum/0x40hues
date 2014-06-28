@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <common.hpp>
 #include <video_renderer.hpp>
 
@@ -27,28 +29,29 @@ namespace HuesRenderer {
 
 }
 
+const char *VideoRenderer::kPassThroughVertexShader = "void main() { gl_Position = ftransform(); }";
 const char *VideoRenderer::kHardLightFragmentShader = R"END(
 uniform sampler2D BaseImage;
-uniform sampler2D BlendImage;
+uniform vec4 BlendColor;
 
-void main (void) {
-  vec4 base  = texture2D(BaseImage, gl_TexCoord[0].xy);
-  vec4 blend = texture2D(BlendImage, gl_TexCoord[0].xy);
+void main() {
+  vec4 base = texture2D(BaseImage, gl_FragCoord);
   vec4 lumCoeff = vec4(0.2125, 0.7154, 0.0721, 1.0);
 
-  float luminance = dot(blend, lumCoeff);
+  float luminance = dot(BlendColor, lumCoeff);
   if (luminance < 0.45) {
-    gl_FragColor = 2.0 * blend * base;
+    gl_FragColor = 2.0 * BlendColor * base;
   } else if (luminance > 0.55) {
-    gl_FragColor = vec4(1.0) - 2.0 * (vec4(1.0) - blend) * (vec4(1.0) - base);
+    gl_FragColor = vec4(1.0) - 2.0 * (vec4(1.0) - BlendColor) * (vec4(1.0) - base);
   } else {
-    vec4 result1 = 2.0 * blend * base;
-    vec4 result2 = vec4(1.0) - 2.0 * (vec4(1.0) - blend) * (vec4(1.0) - base);
+    vec4 result1 = 2.0 * BlendColor * base;
+    vec4 result2 = vec4(1.0) - 2.0 * (vec4(1.0) - BlendColor) * (vec4(1.0) - base);
     gl_FragColor = mix(result1, result2, (luminance - 0.45) * 10.0);
   }
+
+  gl_FragColor = base;
 }
 )END";
-
 
 VideoRenderer *VideoRenderer::instance = NULL;
 
@@ -75,6 +78,9 @@ void VideoRenderer::Init(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  // Compile shaders.
+  this->CompileShaders();
+
   // Set callback functions.
   glutDisplayFunc(HuesRenderer::DrawFrameCallback);
   glutReshapeFunc(HuesRenderer::ResizeCallback);
@@ -85,7 +91,7 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   glClear(GL_COLOR_BUFFER_BIT);
   glutSwapBuffers();
 
-  glClearColor(.3, .6, .7, 1);
+  glUseProgram(this->shader_program);
 }
 
 void VideoRenderer::DoGlutLoop() {
@@ -103,7 +109,39 @@ void VideoRenderer::DoGlutLoop() {
 }
 
 void VideoRenderer::CompileShaders() {
-  this->hard_light_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  // Compile shaders and link program.
+  this->pass_through_vertex_shader =
+      this->CompileShader(VideoRenderer::kPassThroughVertexShader, GL_VERTEX_SHADER);
+  this->hard_light_fragment_shader =
+      this->CompileShader(VideoRenderer::kHardLightFragmentShader, GL_FRAGMENT_SHADER);
+
+  this->shader_program = glCreateProgram();
+  glAttachShader(this->shader_program, this->pass_through_vertex_shader);
+  glAttachShader(this->shader_program, this->hard_light_fragment_shader);
+  glLinkProgram(this->shader_program);
+}
+
+GLuint VideoRenderer::CompileShader(const char *&shader_text, GLenum shader_type) {
+  GLuint shader;
+  GLint shaderOpSuccess;
+
+  shader = glCreateShader(shader_type);
+  glShaderSourceARB(shader, 1, &shader_text, NULL);
+  glCompileShaderARB(shader);
+  glGetObjectParameterivARB(shader, GL_COMPILE_STATUS, &shaderOpSuccess);
+  if (!shaderOpSuccess) {
+    GLint log_len = 0;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len);
+    if (log_len > 1) {
+      GLchar* log = reinterpret_cast<GLchar*>(malloc(log_len));
+      glGetInfoLogARB(shader, log_len, NULL, log);
+      ERR("Error compiling shader! Output on next lines.");
+      ERR(log);
+      free(log);
+    }
+  }
+
+  return shader;
 }
 
 void VideoRenderer::LoadTextures(const ResourcePack &respack) {
@@ -115,7 +153,7 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
     int height;
     int color_type;
 
-    LOG("Loading [" + image->GetName() + "] into texture memory.");
+    DEBUG("Loading [" + image->GetName() + "] into texture memory.");
     png_byte *image_bytes = image->ReadAndDecode(&width, &height, &color_type);
 
     GLint texture_format;
@@ -130,6 +168,7 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
     }
 
     GLuint texture;
+    glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, /* level of detail number */0, GL_LUMINANCE_ALPHA,
@@ -182,10 +221,15 @@ void VideoRenderer::DrawFrame() {
 
   // Make sure we have a image to draw, first.
   if (this->current_image) {
+    // Set shader program uniforms.
+    GLuint texture = this->textures[this->current_image->GetName()];
+    glUniform1i(glGetUniformLocation(this->shader_program, "BlendImage"), 0);
+    glUniform4f(glGetUniformLocation(this->shader_program, "BaseColor"), red, green, blue, 1);
+
     // Bind the texture and draw a rectangle.
-    glBindTexture(GL_TEXTURE_2D, this->textures[this->current_image->GetName()]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_QUADS);
-        glColor3f(red, green, blue);
         glTexCoord2f(0, 1); glVertex2f(0, 0);
         glTexCoord2f(1, 1); glVertex2f(this->window_width, 0);
         glTexCoord2f(1, 0); glVertex2f(this->window_width, this->window_height);

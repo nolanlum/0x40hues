@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
   vector<ImageResource*> imgs;
   p->GetAllImages(imgs);
   for (;;) {
-    usleep(((rand() % 1000) + 500) * 1000);
+    sleep(2);
     v->SetImage(imgs[rand() % imgs.size()]->GetName(), AudioResource::Beat::NO_BLUR);
     v->SetColor(rand() % 0x40);
   }
