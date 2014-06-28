@@ -13,7 +13,7 @@
 namespace HuesRenderer {
   void DrawFrameCallback();
   void ResizeCallback(const int width, const int height);
-  void IdleCallback();
+  void TimerCallback(int);
 }
 
 // VideoRenderer class.

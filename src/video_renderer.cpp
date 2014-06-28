@@ -23,8 +23,11 @@ namespace HuesRenderer {
     ::VideoRenderer::instance->HandleResize(width, height);
   }
 
-  void IdleCallback() {
+  void TimerCallback(int ignored) {
     glutPostRedisplay();
+
+    // Cap at 500fps, I guess.
+    glutTimerFunc(2, TimerCallback, 0);
   }
 
 }
@@ -84,7 +87,7 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   // Set callback functions.
   glutDisplayFunc(HuesRenderer::DrawFrameCallback);
   glutReshapeFunc(HuesRenderer::ResizeCallback);
-  glutIdleFunc(HuesRenderer::IdleCallback);
+  glutTimerFunc(0, HuesRenderer::TimerCallback, 0);
 
   // Clear the window and display a solid color.
   glClearColor(1, 1, 1, 1);
@@ -211,6 +214,7 @@ bool VideoRenderer::SetColor(const int color_index) {
 void VideoRenderer::DrawFrame() {
   pthread_rwlock_rdlock(&this->render_lock);
 
+  // Calculate the color based on the index, normalized to [0,1].
   float red = (this->current_color % 4) / 3.f;
   float green = ((this->current_color >> 2) % 4) / 3.f;
   float blue = (this->current_color >> 4) / 3.f;
