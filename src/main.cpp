@@ -1,21 +1,42 @@
 #include <pthread.h>
+#include <unistd.h>
 
 #include <iostream>
 
 #include <respack.hpp>
 #include <video_renderer.hpp>
 
-int main(int argc, char **argv) {
-  // We need to call pthreads so we link it at runtime.
-  // So here we have it (until we use pthreads for real).
-  // See http://stackoverflow.com/questions/20007961/error-running-a-compiled-c-file-uses-opengl-error-inconsistency-detected
-  pthread_getconcurrency();
+static VideoRenderer *v;
+static ResourcePack *p;
 
-  ResourcePack pack("../respacks/Default/");
-  pack.Init();
-
-  //VideoRenderer v(argc, argv);
-  //v.DoGlutLoop();
-
-  return 0;
+// Video renderer thread entry point.
+void* video_renderer(void *) {
+  const char *argv[] { "" };
+  v->Init(1, const_cast<char **>(argv));
+  v->LoadTextures(*p);
+  v->DoGlutLoop();
+  pthread_exit(EXIT_SUCCESS);
 }
+
+int main(int argc, char **argv) {
+  p = new ResourcePack("../respacks/Default/");
+  p->Init();
+
+  v = new VideoRenderer();
+
+  pthread_t render_thread_id;
+  pthread_create(&render_thread_id, NULL, video_renderer, NULL);
+
+  // What is a race condition?
+  sleep(2);
+  v->SetImage("Senjougahara", AudioResource::Beat::NO_BLUR);
+  sleep(2);
+  v->SetImage("Suiseiseki", AudioResource::Beat::NO_BLUR);
+  sleep(2);
+  v->SetImage("Kirisame Marisa", AudioResource::Beat::NO_BLUR);
+  sleep(2);
+
+  pthread_join(render_thread_id, NULL);
+  pthread_exit(0);
+}
+

@@ -97,6 +97,11 @@ public:
    */
   png_byte* ReadAndDecode(int *width, int *height, int *color_type);
 
+  /** Returns this ImageResource's name (without file extension). */
+  string GetName() const { return this->image_name; }
+  /** Returns this ImageResource's alignment. */
+  Align GetAlignment() const { return this->alignment; }
+
   /** C++ enums are le suck. */
   static Align ParseAlignmentString(const string& align) {
     if (align == "left") {

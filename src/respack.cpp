@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <string>
 
 #include <pugixml.hpp>
@@ -172,17 +174,19 @@ png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type)
   if (height) {
     *height = temp_height;
   }
+
+  // Transform PNG images into 8bpc GA.
+  png_set_expand(png_ptr);
+  png_set_packing(png_ptr);
+
+  // Allocate memory for the image; read and update more PNG info first though.
+  png_read_update_info(png_ptr, info_ptr);
+  temp_color_type = png_get_color_type(png_ptr, info_ptr);
   if (color_type) {
     *color_type = temp_color_type;
   }
 
-  if (bit_depth != 8) {
-    ERROR("Encountered unsupported bit depth [" + to_string(bit_depth) + "].");
-    goto DECODE_DESTROY_PNG_STRUCTS;
-  }
-
-  // Allocate memory for the image; read more PNG info first though.
-  png_read_update_info(png_ptr, info_ptr);
+  assert(png_get_bit_depth(png_ptr, info_ptr) == 8);
 
   // glTexImage2d requires rows to be 4-byte aligned
   rowbytes = png_get_rowbytes(png_ptr, info_ptr);

@@ -1,27 +1,44 @@
 #ifndef HUES_VIDEO_RENDERER_H_
 #define HUES_VIDEO_RENDERER_H_
 
+#include <pthread.h>
+
+#include <unordered_map>
+
 #include <common.hpp>
 #include <respack.hpp>
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
+// Forward declarations of HuesRenderer callbacks.
 namespace HuesRenderer {
   void DrawFrameCallback();
+  void ResizeCallback(const int width, const int height);
+  void IdleCallback();
 }
 
+// VideoRenderer class.
 class VideoRenderer {
 
   DISALLOW_COPY_AND_ASSIGN(VideoRenderer)
 
   public:
     /**
-     * Create a new VideoRenderer
+     * Create a new VideoRenderer.
      */
-    VideoRenderer(int argc, char *argv[]); //TODO: I have no idea what needs to be initialized
+    VideoRenderer();
 
     /**
-     * Clean up the window before closing
+     * Clean up the window before closing.
      */
     ~VideoRenderer();
+
+    /** Initializes GLUT and other OpenGL state. */
+    void Init(int argc, char *argv[]);
 
     /**
      * Creates the program window, registers GLUT callbacks, then runs the GLUT event loop
@@ -34,7 +51,7 @@ class VideoRenderer {
      *
      * @param respack the resource pack to load image textures from.
      */
-    void LoadTextures(ResourcePack *respack);
+    void LoadTextures(const ResourcePack &respack);
 
     /**
      * Set an Image for the next DrawFrame()
@@ -57,14 +74,33 @@ class VideoRenderer {
     bool SetColor(const int color_index);
 
   private:
-    /**
-     * GLUT callback function for drawing a frame.
-     *
-     * This function uses the state of the statically available VideoRenderer to decide what to
-     * draw, and draws it.
-     */
+    // GLUT callback functions are declared friend so they can access private rendering functions.
+    // Yeah it doesn't make much sense.
     friend void HuesRenderer::DrawFrameCallback();
 
+    /**
+     * GLUT callback function for a window resize. Informs this class the new dimensions of the
+     * window, for positioning and stuff.
+     */
+    friend void HuesRenderer::ResizeCallback(const int, const int);
+
+    /** Draws a frame based on the parameters currently set in this class instance. */
+    void DrawFrame();
+    /** Updates class info based on a window resize event. */
+    void HandleResize(const int width, const int height);
+
+    unordered_map<string, GLuint> textures;
+    unordered_map<string, ImageResource*> images;
+
+    int window_height = -1;
+    int window_width = -1;
+
+    ImageResource *current_image = NULL;
+
+    pthread_rwlock_t render_lock;
+
+    // THIS IS HELL AND YOU ARE THE DEVIL.
+    static VideoRenderer *instance;
 };
 
 #endif
