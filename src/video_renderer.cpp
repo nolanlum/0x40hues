@@ -96,7 +96,7 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
         texture_format = GL_RGBA;
         break;
       default:
-        ERROR("Unsupported libpng color type: [" + to_string(color_type) + "].");
+        ERR("Unsupported libpng color type: [" + to_string(color_type) + "].");
         free(image_bytes);
         return;
     }
@@ -120,7 +120,7 @@ bool VideoRenderer::SetImage(const string& image_name, const AudioResource::Beat
   pthread_rwlock_wrlock(&this->render_lock);
 
   if (this->images.find(image_name) == this->images.end()) {
-    ERROR("Render image [" + image_name + "] failed: not loaded!");
+    ERR("Render image [" + image_name + "] failed: not loaded!");
     pthread_rwlock_unlock(&this->render_lock);
     return false;
   }

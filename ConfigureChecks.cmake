@@ -5,6 +5,9 @@ INCLUDE(CheckLibraryExists)
 IF(WIN32)
     SET(CMAKE_EXE_LINKER_FLAGS "-static")
     SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+
+    SET(PNG_LIBRARY /opt/windows_64/lib64/libpng.dll.a)
+    SET(ZLIB_LIBRARY /opt/windows_64/lib64/libz.dll.a)
 ENDIF(WIN32)
 
 # Ignore depreciation warnings on OSX because GLUT is deprecated.

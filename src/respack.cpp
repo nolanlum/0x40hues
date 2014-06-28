@@ -25,15 +25,15 @@ ResourcePack::~ResourcePack() {
 
 bool ResourcePack::Init() {
   if (!FileSystem::Exists(this->base_path)) {
-    ERROR("Respack base directory [" + this->base_path + "] does not exist!");
+    ERR("Respack base directory [" + this->base_path + "] does not exist!");
     return false;
   }
 
   if (!FileSystem::Exists(this->base_path + "songs.xml")) {
-    ERROR("Respack doesn't contain a [songs.xml] file!");
+    ERR("Respack doesn't contain a [songs.xml] file!");
   }
   if (!FileSystem::Exists(this->base_path + "images.xml")) {
-    ERROR("Respack doesn't contain a [images.xml] file!");
+    ERR("Respack doesn't contain a [images.xml] file!");
   }
 
   LOG("Loading respack at [" + this->base_path + "].");
@@ -49,7 +49,7 @@ void ResourcePack::ParseSongXmlFile() {
   xml_parse_result parse_result = doc.load_file(song_xml_filename.c_str());
 
   if (parse_result.status != xml_parse_status::status_ok) {
-    ERROR("Could not parse [songs.xml]: " + string(parse_result.description()));
+    ERR("Could not parse [songs.xml]: " + string(parse_result.description()));
     return;
   }
 
@@ -79,7 +79,7 @@ void ResourcePack::ParseImageXmlFile() {
   xml_parse_result parse_result = doc.load_file(image_xml_filename.c_str());
 
   if (parse_result.status != xml_parse_status::status_ok) {
-    ERROR("Could not parse [images.xml]: " + string(parse_result.description()));
+    ERR("Could not parse [images.xml]: " + string(parse_result.description()));
     return;
   }
 
@@ -132,30 +132,30 @@ png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type)
   // Read the PNG header, as recommended by libpng.
   fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8)) {
-    ERROR("ImageResource [" + file_name + "] was not a PNG.");
+    ERR("ImageResource [" + file_name + "] was not a PNG.");
     goto DECODE_CLOSE_FILE;
   }
 
   // Allocate libpng structs.
   png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (!png_ptr) {
-    ERROR("png_create_read_struct failed.");
+    ERR("png_create_read_struct failed.");
     goto DECODE_CLOSE_FILE;
   }
   info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr) {
-    ERROR("png_create_info_struct failed.");
+    ERR("png_create_info_struct failed.");
     goto DECODE_DESTROY_PNG_STRUCTS;
   }
   endinfo_ptr = png_create_info_struct(png_ptr);
   if (!endinfo_ptr) {
-    ERROR("png_create_info_struct failed.");
+    ERR("png_create_info_struct failed.");
     goto DECODE_DESTROY_PNG_STRUCTS;
   }
 
   // The code in this if statement gets called if libpng encounters an error.
   if (setjmp(png_jmpbuf(png_ptr))) {
-    ERROR("libpng returned error.");
+    ERR("libpng returned error.");
     goto DECODE_DESTROY_PNG_STRUCTS;
   }
 
@@ -201,7 +201,7 @@ png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type)
     if (row_pointers) {
       free(row_pointers);
     }
-    ERROR("Could not allocate memory!");
+    ERR("Could not allocate memory!");
     goto DECODE_DESTROY_PNG_STRUCTS;
   }
 
