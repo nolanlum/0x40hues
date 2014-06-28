@@ -32,13 +32,23 @@ namespace HuesRenderer {
 
 }
 
-const char *VideoRenderer::kPassThroughVertexShader = "void main() { gl_Position = ftransform(); }";
+const char *VideoRenderer::kPassThroughVertexShader = R"END(
+varying vec2 vTexCoord;
+
+void main() {
+  gl_Position = ftransform();
+  vTexCoord = gl_Position.xy * vec2(0.5) + vec2(0.5);
+}
+)END";
+
 const char *VideoRenderer::kHardLightFragmentShader = R"END(
 uniform sampler2D BaseImage;
 uniform vec4 BlendColor;
 
+varying vec2 vTexCoord;
+
 void main() {
-  vec4 base = texture2D(BaseImage, gl_FragCoord);
+  vec4 base = texture2D(BaseImage, vTexCoord);
   vec4 lumCoeff = vec4(0.2125, 0.7154, 0.0721, 1.0);
 
   float luminance = dot(BlendColor, lumCoeff);
