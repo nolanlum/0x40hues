@@ -244,10 +244,10 @@ void VideoRenderer::DrawFrame() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 1); glVertex2f(0, 0);
-        glTexCoord2f(1, 1); glVertex2f(this->window_width, 0);
-        glTexCoord2f(1, 0); glVertex2f(this->window_width, this->window_height);
-        glTexCoord2f(0, 0); glVertex2f(0, this->window_height);
+        glTexCoord2f(0, 0); glVertex2f(0, 0);
+        glTexCoord2f(1, 0); glVertex2f(this->window_width, 0);
+        glTexCoord2f(1, 1); glVertex2f(this->window_width, this->window_height);
+        glTexCoord2f(0, 1); glVertex2f(0, this->window_height);
     glEnd();
   }
 
