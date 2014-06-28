@@ -10,11 +10,13 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -ggdb -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g0 -O2")
-add_compile_options(-Wall -Werror -std=c++11)
+set(CMAKE_CXX_FLAGS "-std=c++11")
+add_compile_options(-Wall -Werror -DGLEW_STATIC)
 
 # For platform-specific library checks.
 INCLUDE(ConfigureChecks.cmake)
 
 # Source directories go here.
 ADD_SUBDIRECTORY(pugixml)
+ADD_SUBDIRECTORY(glew)
 ADD_SUBDIRECTORY(src)

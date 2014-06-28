@@ -1,17 +1,9 @@
 #include <common.hpp>
 #include <video_renderer.hpp>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #else
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glut.h>
 #endif
 
@@ -35,6 +27,29 @@ namespace HuesRenderer {
 
 }
 
+const char *VideoRenderer::kHardLightFragmentShader = R"END(
+uniform sampler2D BaseImage;
+uniform sampler2D BlendImage;
+
+void main (void) {
+  vec4 base  = texture2D(BaseImage, gl_TexCoord[0].xy);
+  vec4 blend = texture2D(BlendImage, gl_TexCoord[0].xy);
+  vec4 lumCoeff = vec4(0.2125, 0.7154, 0.0721, 1.0);
+
+  float luminance = dot(blend, lumCoeff);
+  if (luminance < 0.45) {
+    gl_FragColor = 2.0 * blend * base;
+  } else if (luminance > 0.55) {
+    gl_FragColor = vec4(1.0) - 2.0 * (vec4(1.0) - blend) * (vec4(1.0) - base);
+  } else {
+    vec4 result1 = 2.0 * blend * base;
+    vec4 result2 = vec4(1.0) - 2.0 * (vec4(1.0) - blend) * (vec4(1.0) - base);
+    gl_FragColor = mix(result1, result2, (luminance - 0.45) * 10.0);
+  }
+}
+)END";
+
+
 VideoRenderer *VideoRenderer::instance = NULL;
 
 VideoRenderer::VideoRenderer() {
@@ -49,7 +64,16 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   glutInitDisplayMode(GLUT_DOUBLE);
   glutInit(&argc, argv);
 
+  // Create the OpenGL context and window.
   glutCreateWindow("0x40 Hues");
+
+  // Initialize GLEW.
+  GLenum err = glewInit();
+  if (err != GLEW_OK) {
+    ERR("GLEW initialization failed! Failure reason on next line.");
+    ERR(glewGetErrorString(err));
+    exit(EXIT_FAILURE);
+  }
 
   // Set callback functions.
   glutDisplayFunc(HuesRenderer::DrawFrameCallback);
@@ -76,6 +100,10 @@ void VideoRenderer::DoGlutLoop() {
 
   // I don't know how we can ever get here but whatever.
   VideoRenderer::instance = NULL;
+}
+
+void VideoRenderer::CompileShaders() {
+  this->hard_light_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 }
 
 void VideoRenderer::LoadTextures(const ResourcePack &respack) {
@@ -108,6 +136,8 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
         width, height, /* border */ 0, texture_format, GL_UNSIGNED_BYTE, image_bytes);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glBindTexture(GL_TEXTURE_2D, (GLuint) NULL);
 
     free(image_bytes);
@@ -134,16 +164,28 @@ bool VideoRenderer::SetImage(const string& image_name, const AudioResource::Beat
   return true;
 }
 
+bool VideoRenderer::SetColor(const int color_index) {
+  this->current_color = (color_index < 0) ? 0 : (color_index % 40);
+  return true;
+}
+
 void VideoRenderer::DrawFrame() {
   pthread_rwlock_rdlock(&this->render_lock);
 
+  float red = (this->current_color % 4) / 3.f;
+  float green = ((this->current_color >> 2) % 4) / 3.f;
+  float blue = (this->current_color >> 4) / 3.f;
+  glClearColor(red, green, blue, 1);
   glClear(GL_COLOR_BUFFER_BIT);
+
+  //DEBUG(to_string(red) + " " + to_string(green) + " " + to_string(blue));
 
   // Make sure we have a image to draw, first.
   if (this->current_image) {
     // Bind the texture and draw a rectangle.
     glBindTexture(GL_TEXTURE_2D, this->textures[this->current_image->GetName()]);
     glBegin(GL_QUADS);
+        glColor3f(red, green, blue);
         glTexCoord2f(0, 1); glVertex2f(0, 0);
         glTexCoord2f(1, 1); glVertex2f(this->window_width, 0);
         glTexCoord2f(1, 0); glVertex2f(this->window_width, this->window_height);
@@ -159,6 +201,7 @@ void VideoRenderer::DrawFrame() {
 
 void VideoRenderer::HandleResize(const int width, const int height) {
   // Set up a 2D projection. This is mostly black magic.
+  glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, width, height, 0, 0, 1);

@@ -1,18 +1,13 @@
 #ifndef HUES_VIDEO_RENDERER_H_
 #define HUES_VIDEO_RENDERER_H_
 
+#include <glew.h>
 #include <pthread.h>
 
 #include <unordered_map>
 
 #include <common.hpp>
 #include <respack.hpp>
-
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 
 // Forward declarations of HuesRenderer callbacks.
 namespace HuesRenderer {
@@ -77,12 +72,10 @@ class VideoRenderer {
     // GLUT callback functions are declared friend so they can access private rendering functions.
     // Yeah it doesn't make much sense.
     friend void HuesRenderer::DrawFrameCallback();
-
-    /**
-     * GLUT callback function for a window resize. Informs this class the new dimensions of the
-     * window, for positioning and stuff.
-     */
     friend void HuesRenderer::ResizeCallback(const int, const int);
+
+    /** Compiles our hard light (and eventually Gaussian blur) shaders. */
+    void CompileShaders();
 
     /** Draws a frame based on the parameters currently set in this class instance. */
     void DrawFrame();
@@ -96,11 +89,16 @@ class VideoRenderer {
     int window_width = -1;
 
     ImageResource *current_image = NULL;
+    int current_color = 0;
+
+    GLuint hard_light_fragment_shader;
 
     pthread_rwlock_t render_lock;
 
     // THIS IS HELL AND YOU ARE THE DEVIL.
     static VideoRenderer *instance;
+
+    static const char *kHardLightFragmentShader;
 };
 
 #endif

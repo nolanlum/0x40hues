@@ -1,4 +1,5 @@
 include_directories(
+    ${0x40HUES_SOURCE_DIR}/glew
     ${0x40HUES_SOURCE_DIR}/src
     ${0x40HUES_SOURCE_DIR}/pugixml
     ${OPENGL_INCLUDE_DIRS}
@@ -6,6 +7,7 @@ include_directories(
     ${PNG_INCLUDE_DIRS}
     ${0x40HUES_BINARY_DIR})
 link_directories(
+    ${0x40HUES_BINARY_DIR}/glew
     ${0x40HUES_BINARY_DIR}/src
     ${0x40HUES_BINARY_DIR}/pugixml)
 
@@ -30,11 +32,12 @@ add_executable(0x40hues ${HUES_SOURCES})
 target_link_libraries(0x40hues ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(0x40hues ${PNG_LIBRARIES})
 target_link_libraries(0x40hues ${GLUT_LIBRARIES})
+target_link_libraries(0x40hues glew)
 target_link_libraries(0x40hues ${OPENGL_LIBRARIES})
 target_link_libraries(0x40hues pugixml)
 
 IF(WIN32)
     set_property(TARGET 0x40hues PROPERTY LINK_SEARCH_END_STATIC ON)
-    add_definitions(-DFREEGLUT_STATIC -DGLEW_STATIC)
+    add_definitions(-DFREEGLUT_STATIC)
     target_link_libraries(0x40hues winmm)
 ENDIF(WIN32)

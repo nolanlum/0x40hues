@@ -34,6 +34,7 @@ As an added bonus, you can get SublimeClang working (it's nifty).
         "-Werror",
         "-Wno-deprecated",
         "-I${folder:${project_path:README.md}}/build",
+        "-I${folder:${project_path:README.md}}/glew",
         "-I${folder:${project_path:README.md}}/pugixml",
         "-I${folder:${project_path:README.md}}/src",
         "-D__SRCFILE__",
