@@ -47,22 +47,34 @@ uniform vec4 BlendColor;
 
 varying vec2 vTexCoord;
 
+// Apply alpha channel to the texture by blending with white.
+void applyAlpha(in vec4 base, out vec3 result) {
+  result = mix(vec3(1.0), base.rgb, base.a);
+}
+
+// Alpha-unaware hard light blend function.
+void hardLight(in vec3 base, in vec3 blend, out vec3 result) {
+  vec3 lumCoeff = vec3(0.2125, 0.7154, 0.0721);
+  vec3 white = vec3(1.0);
+
+  float luminance = dot(blend, lumCoeff);
+  if (luminance < 0.5) {
+    result = max(base + 2.0 * blend - 1.0, vec3(0.0));
+  } else {
+    result = min(base + 2.0 * (blend - 0.5), vec3(1.0));
+  }
+}
+
 void main() {
   vec4 base = texture2D(BaseImage, vTexCoord);
-  vec4 lumCoeff = vec4(0.2125, 0.7154, 0.0721, 1.0);
+  vec3 blend = vec3(BlendColor);
+  vec3 result;
 
-  float luminance = dot(BlendColor, lumCoeff);
-  if (luminance < 0.45) {
-    gl_FragColor = 2.0 * BlendColor * base;
-  } else if (luminance > 0.55) {
-    gl_FragColor = vec4(1.0) - 2.0 * (vec4(1.0) - BlendColor) * (vec4(1.0) - base);
-  } else {
-    vec4 result1 = 2.0 * BlendColor * base;
-    vec4 result2 = vec4(1.0) - 2.0 * (vec4(1.0) - BlendColor) * (vec4(1.0) - base);
-    gl_FragColor = mix(result1, result2, (luminance - 0.45) * 10.0);
-  }
-
-  gl_FragColor = base;
+  // Apply hard light blend with .7 opacity.
+  applyAlpha(base, result);
+  hardLight(result, blend, result);
+  result = mix(base, result, .7);
+  gl_FragColor = vec4(result, 1);
 }
 )END";
 
@@ -77,7 +89,7 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   // Set preferred window size and location.
   glutInitWindowSize(1280, 720);
   glutInitWindowPosition(50, 50);
-  glutInitDisplayMode(GLUT_DOUBLE);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
   glutInit(&argc, argv);
 
   // Create the OpenGL context and window.
@@ -100,7 +112,7 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   glutTimerFunc(0, HuesRenderer::TimerCallback, 0);
 
   // Clear the window and display a solid color.
-  glClearColor(1, 1, 1, 1);
+  glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
   glutSwapBuffers();
 
@@ -151,6 +163,9 @@ GLuint VideoRenderer::CompileShader(const char *&shader_text, GLenum shader_type
       ERR("Error compiling shader! Output on next lines.");
       ERR(log);
       free(log);
+
+      // Might as well fail because shaders are important for this application.
+      exit(EXIT_FAILURE);
     }
   }
 
@@ -190,6 +205,7 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glBindTexture(GL_TEXTURE_2D, (GLuint) NULL);
 
     free(image_bytes);
@@ -217,7 +233,7 @@ bool VideoRenderer::SetImage(const string& image_name, const AudioResource::Beat
 }
 
 bool VideoRenderer::SetColor(const int color_index) {
-  this->current_color = (color_index < 0) ? 0 : (color_index % 40);
+  this->current_color = (color_index < 0) ? 0 : (color_index % 0x40);
   return true;
 }
 
@@ -225,20 +241,17 @@ void VideoRenderer::DrawFrame() {
   pthread_rwlock_rdlock(&this->render_lock);
 
   // Calculate the color based on the index, normalized to [0,1].
-  float red = (this->current_color % 4) / 3.f;
-  float green = ((this->current_color >> 2) % 4) / 3.f;
-  float blue = (this->current_color >> 4) / 3.f;
-  glClearColor(red, green, blue, 1);
+  float red = (this->current_color & 0b11) / 3.f;
+  float green = ((this->current_color & 0b1100) >> 2) / 3.f;
+  float blue = ((this->current_color & 0b110000) >> 4) / 3.f;
   glClear(GL_COLOR_BUFFER_BIT);
-
-  //DEBUG(to_string(red) + " " + to_string(green) + " " + to_string(blue));
 
   // Make sure we have a image to draw, first.
   if (this->current_image) {
     // Set shader program uniforms.
     GLuint texture = this->textures[this->current_image->GetName()];
-    glUniform1i(glGetUniformLocation(this->shader_program, "BlendImage"), 0);
-    glUniform4f(glGetUniformLocation(this->shader_program, "BaseColor"), red, green, blue, 1);
+    glUniform1i(glGetUniformLocation(this->shader_program, "BaseImage"), 0);
+    glUniform4f(glGetUniformLocation(this->shader_program, "BlendColor"), red, green, blue, 1);
 
     // Bind the texture and draw a rectangle.
     glActiveTexture(GL_TEXTURE0);
@@ -270,10 +283,6 @@ void VideoRenderer::HandleResize(const int width, const int height) {
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
-
-  // Alpha is good. Don't be beta.
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   this->window_width = width;
   this->window_height = height;
