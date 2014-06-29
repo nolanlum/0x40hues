@@ -150,7 +150,7 @@ void main()
 const float VideoRenderer::kFullStrengthBlurRadius = 0.1;
 
 /** blur_x and blur_y are divided by this factor every decay tick. */
-const float VideoRenderer::kBlurDecayFactorPerTick = 1.5f;
+const float VideoRenderer::kBlurDecayFactorPerTick = 1.3f;
 
 /** 60 ticks per second. */
 const clock_t VideoRenderer::kBlurDecayTick = CLOCKS_PER_SEC / 60;
@@ -532,8 +532,8 @@ void VideoRenderer::InitFramebuffer() {
   glBindTexture(GL_TEXTURE_2D, this->blur_fb.tex_id);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this->window_width, this->window_height, 0,
       GL_RGBA, GL_UNSIGNED_BYTE, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
       this->blur_fb.tex_id, 0);
 
