@@ -11,27 +11,6 @@
 
 using namespace std;
 
-// All GLUT callbacks are contained in the HuesRenderer namespace to avoid polluting the global
-// namespace with "private" functions. It's gross.
-namespace HuesRenderer {
-
-  void DrawFrameCallback() {
-    ::VideoRenderer::instance->DrawFrame();
-  }
-
-  void ResizeCallback(const int width, const int height) {
-    ::VideoRenderer::instance->HandleResize(width, height);
-  }
-
-  void TimerCallback(int ignored) {
-    glutPostRedisplay();
-
-    // Cap at 500fps, I guess.
-    glutTimerFunc(2, TimerCallback, 0);
-  }
-
-}
-
 const char *VideoRenderer::kPassThroughVertexShader = R"END(
 varying vec2 vTexCoord;
 
@@ -80,6 +59,21 @@ void main() {
 
 VideoRenderer *VideoRenderer::instance = NULL;
 
+void VideoRenderer::DrawFrameCallback() {
+  instance->DrawFrame();
+}
+
+void VideoRenderer::ResizeCallback(const int width, const int height) {
+  instance->HandleResize(width, height);
+}
+
+void VideoRenderer::TimerCallback(int ignored) {
+    glutPostRedisplay();
+
+    // Cap at 500fps, I guess.
+    glutTimerFunc(2, TimerCallback, 0);
+}
+
 VideoRenderer::VideoRenderer() {
   pthread_rwlock_init(&this->render_lock, NULL);
 }
@@ -107,9 +101,9 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   this->CompileShaders();
 
   // Set callback functions.
-  glutDisplayFunc(HuesRenderer::DrawFrameCallback);
-  glutReshapeFunc(HuesRenderer::ResizeCallback);
-  glutTimerFunc(0, HuesRenderer::TimerCallback, 0);
+  glutDisplayFunc(DrawFrameCallback);
+  glutReshapeFunc(ResizeCallback);
+  glutTimerFunc(0, TimerCallback, 0);
 
   // Clear the window and display a solid color.
   glClearColor(0, 0, 0, 1);
@@ -163,11 +157,11 @@ GLuint VideoRenderer::CompileShader(const char *&shader_text, GLenum shader_type
     GLint log_len = 0;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len);
     if (log_len > 1) {
-      GLchar* log = reinterpret_cast<GLchar*>(malloc(log_len));
+      GLchar* log = new GLchar[log_len];
       glGetInfoLogARB(shader, log_len, NULL, log);
       ERR("Error compiling shader! Output on next lines.");
-      ERR(log);
-      free(log);
+      cout << log;
+      delete[] log;
 
       // Might as well fail because shaders are important for this application.
       exit(EXIT_FAILURE);
@@ -196,7 +190,7 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
         break;
       default:
         ERR("Unsupported libpng color type: [" + to_string(color_type) + "].");
-        free(image_bytes);
+        delete[] image_bytes;
         return;
     }
 
@@ -213,7 +207,7 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glBindTexture(GL_TEXTURE_2D, (GLuint) NULL);
 
-    free(image_bytes);
+    delete[] image_bytes;
     this->images[image->GetName()] = image;
     this->textures[image->GetName()] = texture;
   }

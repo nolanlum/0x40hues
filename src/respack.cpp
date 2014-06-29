@@ -111,7 +111,7 @@ int ResourcePack::GetAllImages(vector<ImageResource*>& image_list) const {
 // =====================================================================
 
 // Borrowed from https://github.com/DavidEGrayson/ahrs-visualizer/blob/master/png_texture.cpp
-png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type) {
+png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type) const {
   png_byte header[8];
   png_byte *image_data = NULL;
   png_byte **row_pointers = NULL;
@@ -195,15 +195,8 @@ png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type)
   rowbytes += 3 - ((rowbytes - 1) % 4);
 
   // We need two representations of the image data -- a block for OpenGL, and rows for libpng.
-  image_data = (png_byte *) malloc(rowbytes * temp_height * sizeof(png_byte) + 15);
-  row_pointers = (png_byte **) malloc(temp_height * sizeof(png_byte *));
-  if (!image_data || !row_pointers) {
-    if (row_pointers) {
-      free(row_pointers);
-    }
-    ERR("Could not allocate memory!");
-    goto DECODE_DESTROY_PNG_STRUCTS;
-  }
+  image_data = new png_byte[rowbytes * temp_height * sizeof(png_byte) + 15];
+  row_pointers = new png_byte*[temp_height * sizeof(png_byte *)];
 
   // Set the individual row_pointers to point at the correct offsets of image_data.
   for (unsigned int i = 0; i < temp_height; i++) {
@@ -213,7 +206,7 @@ png_byte* ImageResource::ReadAndDecode(int *width, int *height, int *color_type)
   // Read the PNG data and return.
   png_read_image(png_ptr, row_pointers);
 
-  free(row_pointers);
+  delete[] row_pointers;
 DECODE_DESTROY_PNG_STRUCTS:
   png_destroy_read_struct(&png_ptr, &info_ptr, &endinfo_ptr);
 DECODE_CLOSE_FILE:

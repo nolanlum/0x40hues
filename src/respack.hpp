@@ -95,7 +95,7 @@ public:
    * @param height OPTIONAL: a pointer to receive the decoded image's true height.
    * @param color_type OPTIONAL: a pointer to receive the decoded image's color type (usually RGBA).
    */
-  png_byte* ReadAndDecode(int *width, int *height, int *color_type);
+  png_byte* ReadAndDecode(int *width, int *height, int *color_type) const;
 
   /** Returns this ImageResource's name (without file extension). */
   string GetName() const { return this->image_name; }
@@ -127,6 +127,22 @@ class AudioResource {
 
 public:
 
+  enum class Beat {
+    VERTICAL_BLUR,
+    HORIZONTAL_BLUR,
+    NO_BLUR,
+    BLACKOUT,
+    SHORT_BLACKOUT,
+    COLOR_ONLY,
+    IMAGE_ONLY,
+    NO_TRANSITION
+  };
+
+  enum class Type {
+    LOOP,
+    BUILDUP
+  };
+
   /**
    * Constructs a new, named AudioResource.
    *
@@ -141,21 +157,14 @@ public:
   /** Returns whether or not this song has a buildup. */
   bool HasBuildup() const { return !this->buildup_name.empty(); }
 
-  string GetName() const { return this->loop_name; }
+  string GetTitle() const { return song_title; }
+  string GetName(const Type type) const {
+    return type == Type::LOOP ? this->loop_name : this->buildup_name;
+  }
+  string GetBeatmap(const Type type) const {
+    return type == Type::LOOP ? this->loop_beatmap : this->buildup_beatmap;
+  }
 
-  string GetBuildupBeatmap() const { return this->buildup_beatmap; }
-  string GetLoopBeatmap() const { return this->loop_beatmap; }
-
-  enum class Beat {
-    VERTICAL_BLUR,
-    HORIZONTAL_BLUR,
-    NO_BLUR,
-    BLACKOUT,
-    SHORT_BLACKOUT,
-    COLOR_ONLY,
-    IMAGE_ONLY,
-    NO_TRANSITION
-  };
 
   static Beat ParseBeatCharacter(const char beatChar) {
     switch (beatChar) {

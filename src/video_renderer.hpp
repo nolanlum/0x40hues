@@ -9,13 +9,6 @@
 #include <common.hpp>
 #include <respack.hpp>
 
-// Forward declarations of HuesRenderer callbacks.
-namespace HuesRenderer {
-  void DrawFrameCallback();
-  void ResizeCallback(const int width, const int height);
-  void TimerCallback(int);
-}
-
 // VideoRenderer class.
 class VideoRenderer {
 
@@ -69,10 +62,10 @@ class VideoRenderer {
     bool SetColor(const int color_index);
 
   private:
-    // GLUT callback functions are declared friend so they can access private rendering functions.
-    // Yeah it doesn't make much sense.
-    friend void HuesRenderer::DrawFrameCallback();
-    friend void HuesRenderer::ResizeCallback(const int, const int);
+
+    static void DrawFrameCallback();
+    static void ResizeCallback(const int, const int);
+    static void TimerCallback(int);
 
     /** Compiles our hard light (and eventually Gaussian blur) shaders. */
     void CompileShaders();
