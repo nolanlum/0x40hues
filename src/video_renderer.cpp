@@ -116,7 +116,7 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   glClear(GL_COLOR_BUFFER_BIT);
   glutSwapBuffers();
 
-  glUseProgram(this->shader_program);
+  glUseProgram(this->image_blend_shaderprogram.id);
 }
 
 void VideoRenderer::DoGlutLoop() {
@@ -134,16 +134,21 @@ void VideoRenderer::DoGlutLoop() {
 }
 
 void VideoRenderer::CompileShaders() {
-  // Compile shaders and link program.
+  // Compile the
   this->pass_through_vertex_shader =
       this->CompileShader(VideoRenderer::kPassThroughVertexShader, GL_VERTEX_SHADER);
   this->hard_light_fragment_shader =
       this->CompileShader(VideoRenderer::kHardLightFragmentShader, GL_FRAGMENT_SHADER);
 
-  this->shader_program = glCreateProgram();
-  glAttachShader(this->shader_program, this->pass_through_vertex_shader);
-  glAttachShader(this->shader_program, this->hard_light_fragment_shader);
-  glLinkProgram(this->shader_program);
+  this->image_blend_shaderprogram.id = glCreateProgram();
+  glAttachShader(this->image_blend_shaderprogram.id, this->pass_through_vertex_shader);
+  glAttachShader(this->image_blend_shaderprogram.id, this->hard_light_fragment_shader);
+  glLinkProgram(this->image_blend_shaderprogram.id);
+
+  this->image_blend_shaderprogram.BaseImage =
+      glGetUniformLocation(this->image_blend_shaderprogram.id, "BaseImage");
+  this->image_blend_shaderprogram.BlendColor =
+      glGetUniformLocation(this->image_blend_shaderprogram.id, "BlendColor");
 }
 
 GLuint VideoRenderer::CompileShader(const char *&shader_text, GLenum shader_type) {
@@ -250,8 +255,8 @@ void VideoRenderer::DrawFrame() {
   if (this->current_image) {
     // Set shader program uniforms.
     GLuint texture = this->textures[this->current_image->GetName()];
-    glUniform1i(glGetUniformLocation(this->shader_program, "BaseImage"), 0);
-    glUniform4f(glGetUniformLocation(this->shader_program, "BlendColor"), red, green, blue, 1);
+    glUniform1i(this->image_blend_shaderprogram.BaseImage, 0);
+    glUniform4f(this->image_blend_shaderprogram.BlendColor, red, green, blue, 1);
 
     // Bind the texture and draw a rectangle.
     glActiveTexture(GL_TEXTURE0);

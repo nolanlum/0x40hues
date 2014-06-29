@@ -20,7 +20,7 @@ void* video_renderer(void *) {
 }
 
 int main(int argc, char **argv) {
-  p = new ResourcePack("../respacks/Default/");
+  p = new ResourcePack("respacks/Default/");
   p->Init();
   v = new VideoRenderer();
 

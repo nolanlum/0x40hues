@@ -95,7 +95,13 @@ class VideoRenderer {
 
     GLuint pass_through_vertex_shader;
     GLuint hard_light_fragment_shader;
-    GLuint shader_program;
+
+    // Stores the shader program for blending the image with the color.
+    struct {
+      GLuint id;
+      GLuint BaseImage;
+      GLuint BlendColor;
+    } image_blend_shaderprogram;
 
     pthread_rwlock_t render_lock;
 
