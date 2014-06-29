@@ -4,12 +4,38 @@ Native port of the 0x40hues flash.
 
 ## Building
 
+You'll need CMake since that's the build system we're using here. It's pretty standard:
+
     mkdir build
     cd build
     cmake ..
     make
 
+In terms of libraries, you'll need the development versions of `OpenGL`, `libfreeglut`, `libpng`,
+and `libmad`. You'll also need to have working `pthreads`, but every GCC toolchain worth its salt
+should have that (I think).
+
+### Linux
+
+For `apt`-based distros, you should be able to bring in all the dependencies with:
+
+    sudo apt-get install mesa-common-dev freeglut3-dev libpng1.6-dev libmad0-dev
+
+For `rpm`-based distros, you're on your own.
+
+### OSX
+
+Use Homebrew. That is all.
+
+### Windows
+
+I personally use win_builds(+MSYS), but you can probably build with any GCC toolchain for Win32.
+
 ## Developing
+
+Watches pelcome.
+
+### Sublime Text 2
 
 If you're using Sublime Text, the following settings should get you up to speed with code style.
 As an added bonus, you can get SublimeClang working (it's nifty).

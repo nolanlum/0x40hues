@@ -188,6 +188,9 @@ VideoRenderer::~VideoRenderer() {
     glDeleteTextures(1, &kv.second);
   }
 
+  if (this->blur_fb.tex_id != 0) {
+    glDeleteTextures(1, &this->blur_fb.tex_id);
+  }
   glDeleteFramebuffers(1, &this->blur_fb.id);
 
   glDeleteShader(this->pass_through_vertex_shader);
