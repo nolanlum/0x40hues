@@ -1,6 +1,8 @@
+# Basic project boilerplate.
 PROJECT(0x40HUES)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
+# Set output directories.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
@@ -11,10 +13,15 @@ IF(NOT CMAKE_BUILD_TYPE)
         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
         FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
+
+# Compiler flags.
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -ggdb -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g0 -O2")
 set(CMAKE_CXX_FLAGS "-std=c++11")
 add_compile_options(-Wall -Werror -DGLEW_STATIC)
+
+# Add custom CMake modules.
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 # For platform-specific library checks.
 INCLUDE(ConfigureChecks.cmake)

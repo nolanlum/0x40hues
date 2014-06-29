@@ -17,6 +17,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PNG REQUIRED)
+find_package(Mad REQUIRED)
 
 # Unix requires some extra libraries for OpenGL???
 IF(UNIX)
