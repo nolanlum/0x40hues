@@ -52,9 +52,10 @@ void AudioDecoder::CheckLameGaplessHeader() {
 
     ptr += 22;
 
-
-    enc_delay   = (*ptr << 4 | *(ptr + 1) >> 4) + MAD_DELAY;
+    // Add an extra frame's worth of delay for this header.
+    enc_delay   = (*ptr << 4 | *(ptr + 1) >> 4) + MAD_DELAY + 1152;
     enc_padding = (*(ptr + 1) & 0xF) << 8 | (*(ptr + 2) & 0xFFF);
+    enc_padding = enc_padding > MAD_DELAY ? enc_padding - MAD_DELAY : 0;
 
     this->gapless.total_samples = frame_count * 1152 - enc_delay - enc_padding;
     this->gapless.delay         = enc_delay;

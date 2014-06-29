@@ -1,6 +1,7 @@
 #ifndef HUES_RESPACK_H_
 #define HUES_RESPACK_H_
 
+#include <cmath>
 #include <locale>
 #include <string>
 #include <vector>
@@ -164,11 +165,11 @@ public:
   string GetBeatmap(const Type type) const {
     return (type == Type::LOOP ? this->loop : this->buildup).beatmap;
   }
-  int GetSongDurationUsec(const Type type) const {
-    return (int) ((type == Type::LOOP ? this->loop : this->buildup).sample_count
-        * (type == Type::LOOP ? this->loop : this->buildup).sample_rate / 1000.f / 1000.f);
+  double GetSongDurationUsec(const Type type) const {
+    return (double) (type == Type::LOOP ? this->loop : this->buildup).sample_count
+        / (type == Type::LOOP ? this->loop : this->buildup).sample_rate * 1000 * 1000;
   }
-  int GetBeatDurationUsec(const Type type) const {
+  double GetBeatDurationUsec(const Type type) const {
     return (type == Type::LOOP ? this->loop : this->buildup).usec_per_beat;
   }
   uint8_t* GetPcmData(const Type type) const {
@@ -222,7 +223,7 @@ private:
     int channel_count;
     int sample_count;
     int sample_rate;
-    int usec_per_beat;
+    double usec_per_beat;
 
     song_info(const string& name) : name(name) {}
   } buildup;

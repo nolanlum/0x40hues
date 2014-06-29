@@ -240,10 +240,9 @@ void AudioResource::ReadAndDecode(const Type audio_type) {
 
     // Calculate length of each beat. If there is no beatmap, the song is one long beat.
     if (song->beatmap.empty()) {
-      song->usec_per_beat = (int) ((float) song->sample_count / song->sample_rate * 1000 * 1000);
+      song->usec_per_beat = this->GetSongDurationUsec(audio_type);
     } else {
-      song->usec_per_beat = (int) ((float) song->sample_count / song->sample_rate
-          * 1000 * 1000 / song->beatmap.length());
+      song->usec_per_beat = this->GetSongDurationUsec(audio_type) / song->beatmap.length();
     }
 
     LOG("Loaded [" + file_name + "]: " + to_string(song->beatmap.length()) + " beats at "
