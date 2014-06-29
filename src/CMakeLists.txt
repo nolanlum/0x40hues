@@ -9,6 +9,7 @@ include_directories(
     ${0x40HUES_BINARY_DIR})
 
 SET(HUES_HEADERS
+    "audio_decoder.hpp"
     "common.hpp"
     "filesystem.hpp"
     "respack.hpp"
@@ -16,6 +17,7 @@ SET(HUES_HEADERS
 
 SET(HUES_SOURCES
     ${HUES_HEADERS}
+    "audio_decoder.cpp"
     "respack.cpp"
     "main.cpp"
     "video_renderer.cpp")

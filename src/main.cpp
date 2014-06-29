@@ -20,8 +20,20 @@ void* video_renderer(void *) {
 }
 
 int main(int argc, char **argv) {
-  p = new ResourcePack("respacks/Default/");
-  p->Init();
+  p = new ResourcePack("../respacks/Default/");
+  if (!p->Init()) {
+    exit(EXIT_FAILURE);
+  }
+
+  vector<AudioResource*> songs;
+  p->GetAllSongs(songs);
+  AudioResource *s = songs[0];
+
+  int sample_count, channel_count;
+  s->ReadAndDecode(AudioResource::Type::LOOP, &sample_count, &channel_count);
+  LOG("Read [" + s->GetTitle() + "]: " + to_string(sample_count) + " samples, "
+      + to_string(channel_count) + " channels.");
+
   v = new VideoRenderer();
 
   pthread_t render_thread_id;

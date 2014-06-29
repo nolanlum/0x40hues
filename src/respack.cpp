@@ -1,9 +1,11 @@
 #include <assert.h>
 
+#include <fstream>
 #include <string>
 
 #include <pugixml.hpp>
 
+#include <audio_decoder.hpp>
 #include <common.hpp>
 #include <filesystem.hpp>
 #include <respack.hpp>
@@ -213,4 +215,30 @@ DECODE_CLOSE_FILE:
   fclose(fp);
 DECODE_RETURN:
   return image_data;
+}
+
+// =====================================================================
+//                     A u d i o R e s o u r c e
+// =====================================================================
+
+uint8_t* AudioResource::ReadAndDecode(const Type audio_type, int* sample_count, int* channel_count)
+    const {
+  string file_name = this->base_path + "/Songs/"
+      + (audio_type == Type::LOOP ? this->loop_name : this->buildup_name) + ".mp3";
+  ifstream audio_file(file_name, ifstream::binary);
+
+  if (audio_file) {
+    audio_file.seekg (0, audio_file.end);
+    int file_length = audio_file.tellg();
+    audio_file.seekg (0, audio_file.beg);
+
+    uint8_t *buffer = new uint8_t[file_length];
+    audio_file.read(reinterpret_cast<char*>(buffer), file_length);
+
+    AudioDecoder decoder(buffer, file_length);
+    return decoder.Decode(sample_count, channel_count);
+  } else {
+    ERR("Unable to open audio file [" + file_name + "] for read!");
+    return NULL;
+  }
 }

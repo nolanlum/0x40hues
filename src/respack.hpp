@@ -165,6 +165,16 @@ public:
     return type == Type::LOOP ? this->loop_beatmap : this->buildup_beatmap;
   }
 
+  /**
+   * Reads loop/buildup MP3 file (if present), decodes it, and returns it as a stereo, 16 bits
+   * per channel, little-endian PCM stream. The caller is responsible for deallocating the returned
+   * byte array once finished.
+   *
+   * @param audio_type controls whether we decode the loop or beatmap.
+   * @param sample_count OPTIONAL: a pointer to receive the sample count of the decoded audio.
+   * @param channel_count OPTIONAL: a pointer to receive the channel count of the decoded audio.
+   */
+  uint8_t* ReadAndDecode(const Type audio_type, int* sample_count, int* channel_count) const;
 
   static Beat ParseBeatCharacter(const char beatChar) {
     switch (beatChar) {
