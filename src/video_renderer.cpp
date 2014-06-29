@@ -134,7 +134,7 @@ void VideoRenderer::DoGlutLoop() {
 }
 
 void VideoRenderer::CompileShaders() {
-  // Compile the
+  // Compile the shaders, then link the blending program.
   this->pass_through_vertex_shader =
       this->CompileShader(VideoRenderer::kPassThroughVertexShader, GL_VERTEX_SHADER);
   this->hard_light_fragment_shader =
