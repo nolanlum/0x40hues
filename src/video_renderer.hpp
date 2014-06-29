@@ -4,6 +4,7 @@
 #include <glew.h>
 #include <pthread.h>
 
+#include <cmath>
 #include <unordered_map>
 
 #include <common.hpp>
@@ -93,6 +94,14 @@ class VideoRenderer {
     void DrawFrame();
     /** Updates class info based on a window resize event. */
     void HandleResize(const int width, const int height);
+    /** Handle a GLUT timer event */
+    void HandleTimerTick();
+
+    /** (Re-)Initializes a FBO to the current screen dimensions. */
+    void InitFramebuffer();
+
+    void MarkRenderToTexture();
+    void MarkRenderToScreen();
 
     vector<string> texture_name_list;
     unordered_map<string, GLuint> textures;
@@ -106,8 +115,18 @@ class VideoRenderer {
     ImageResource *current_image = NULL;
     int current_color = 0;
 
+    // A number, in [0,1], that determines what portion of the full strength blur radius we use.
+    // Clamped to the nearest thousandth.
+    float blur_x = 0.f;
+    float blur_y = 0.f;
+    clock_t last_blur_decay_tick;
+
     GLuint pass_through_vertex_shader;
     GLuint hard_light_fragment_shader;
+
+    GLuint gaussian_x_vertex_shader;
+    GLuint gaussian_y_vertex_shader;
+    GLuint gaussian_fragment_shader;
 
     // Stores the shader program for blending the image with the color.
     struct {
@@ -116,6 +135,22 @@ class VideoRenderer {
       GLuint BlendColor;
     } image_blend_shaderprogram;
 
+    // Stores the shader program for blurring the image in the x direction.
+    struct blurprogram {
+      GLuint id;
+      GLuint BlurRadius;
+      GLuint Image;
+    } blur_x_shaderprogram;
+
+    // Stores the shader program for blurring the image in the y direction.
+    struct blurprogram blur_y_shaderprogram;
+
+    // Stores texture and framebuffer info when rendering to texture for Gaussian blur.
+    struct {
+      GLuint id;
+      GLuint tex_id;
+    } blur_fb;
+
     pthread_rwlock_t render_lock;
     pthread_mutex_t load_mutex;
     pthread_cond_t load_cv;
@@ -123,8 +158,15 @@ class VideoRenderer {
     // THIS IS HELL AND YOU ARE THE DEVIL.
     static VideoRenderer *instance;
 
+    static const float kFullStrengthBlurRadius;
+    static const float kBlurDecayFactorPerTick;
+    static const clock_t kBlurDecayTick;
+
     static const char *kPassThroughVertexShader;
     static const char *kHardLightFragmentShader;
+    static const char *kGaussianXVertexShader;
+    static const char *kGaussianYVertexShader;
+    static const char *kGaussianFragmentShader;
 };
 
 #endif

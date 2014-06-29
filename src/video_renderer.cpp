@@ -12,11 +12,11 @@
 using namespace std;
 
 const char *VideoRenderer::kPassThroughVertexShader = R"END(
-varying vec2 vTexCoord;
+varying vec2 v_texCoord;
 
 void main() {
   gl_Position = ftransform();
-  vTexCoord = gl_Position.xy * vec2(0.5) + vec2(0.5);
+  v_texCoord = gl_Position.xy * vec2(0.5) + vec2(0.5);
 }
 )END";
 
@@ -24,7 +24,7 @@ const char *VideoRenderer::kHardLightFragmentShader = R"END(
 uniform sampler2D BaseImage;
 uniform vec4 BlendColor;
 
-varying vec2 vTexCoord;
+varying vec2 v_texCoord;
 
 // Apply alpha channel to the texture by blending with white.
 void applyAlpha(in vec4 base, out vec3 result) {
@@ -50,12 +50,110 @@ void main() {
   vec3 result;
 
   // Apply hard light blend with .7 opacity.
-  applyAlpha(texture2D(BaseImage, vTexCoord), base);
+  applyAlpha(texture2D(BaseImage, v_texCoord), base);
   hardLight(base, blend, result);
   result = mix(base, result, vec3(.7));
   gl_FragColor = vec4(result, 1);
 }
 )END";
+
+const char *VideoRenderer::kGaussianXVertexShader = R"END(
+// From [0, .5]. Provided example was .028
+uniform float BlurRadius;
+
+varying vec2 v_texCoord;
+varying vec2 v_blurTexCoords[14];
+
+void main()
+{
+    gl_Position = ftransform();
+    v_texCoord = gl_Position.xy * vec2(0.5) + vec2(0.5);
+
+    float radiusStep = BlurRadius / 7;
+    v_blurTexCoords[ 0] = vec2(max(0, v_texCoord.x + -7 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 1] = vec2(max(0, v_texCoord.x + -6 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 2] = vec2(max(0, v_texCoord.x + -5 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 3] = vec2(max(0, v_texCoord.x + -4 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 4] = vec2(max(0, v_texCoord.x + -3 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 5] = vec2(max(0, v_texCoord.x + -2 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 6] = vec2(max(0, v_texCoord.x + -1 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 7] = vec2(min(1, v_texCoord.x +  1 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 8] = vec2(min(1, v_texCoord.x +  2 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[ 9] = vec2(min(1, v_texCoord.x +  3 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[10] = vec2(min(1, v_texCoord.x +  4 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[11] = vec2(min(1, v_texCoord.x +  5 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[12] = vec2(min(1, v_texCoord.x +  6 * radiusStep), v_texCoord.y);
+    v_blurTexCoords[13] = vec2(min(1, v_texCoord.x +  7 * radiusStep), v_texCoord.y);
+}
+)END";
+
+const char *VideoRenderer::kGaussianYVertexShader = R"END(
+uniform float BlurRadius;
+
+varying vec2 v_texCoord;
+varying vec2 v_blurTexCoords[14];
+
+void main()
+{
+    gl_Position = ftransform();
+    v_texCoord = gl_Position.xy * vec2(0.5) + vec2(0.5);
+
+    float radiusStep = BlurRadius / 7;
+    v_blurTexCoords[ 0] = vec2(v_texCoord.x, max(0, v_texCoord.y + -7 * radiusStep));
+    v_blurTexCoords[ 1] = vec2(v_texCoord.x, max(0, v_texCoord.y + -6 * radiusStep));
+    v_blurTexCoords[ 2] = vec2(v_texCoord.x, max(0, v_texCoord.y + -5 * radiusStep));
+    v_blurTexCoords[ 3] = vec2(v_texCoord.x, max(0, v_texCoord.y + -4 * radiusStep));
+    v_blurTexCoords[ 4] = vec2(v_texCoord.x, max(0, v_texCoord.y + -3 * radiusStep));
+    v_blurTexCoords[ 5] = vec2(v_texCoord.x, max(0, v_texCoord.y + -2 * radiusStep));
+    v_blurTexCoords[ 6] = vec2(v_texCoord.x, max(0, v_texCoord.y + -1 * radiusStep));
+    v_blurTexCoords[ 7] = vec2(v_texCoord.x, min(1, v_texCoord.y +  1 * radiusStep));
+    v_blurTexCoords[ 8] = vec2(v_texCoord.x, min(1, v_texCoord.y +  2 * radiusStep));
+    v_blurTexCoords[ 9] = vec2(v_texCoord.x, min(1, v_texCoord.y +  3 * radiusStep));
+    v_blurTexCoords[10] = vec2(v_texCoord.x, min(1, v_texCoord.y +  4 * radiusStep));
+    v_blurTexCoords[11] = vec2(v_texCoord.x, min(1, v_texCoord.y +  5 * radiusStep));
+    v_blurTexCoords[12] = vec2(v_texCoord.x, min(1, v_texCoord.y +  6 * radiusStep));
+    v_blurTexCoords[13] = vec2(v_texCoord.x, min(1, v_texCoord.y +  7 * radiusStep));
+}
+)END";
+
+const char *VideoRenderer::kGaussianFragmentShader = R"END(
+precision mediump float;
+
+uniform sampler2D Image;
+
+varying vec2 v_texCoord;
+varying vec2 v_blurTexCoords[14];
+
+void main()
+{
+  gl_FragColor = vec4(0.0);
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 0]) * 0.0044299121055113265;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 1]) * 0.00895781211794;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 2]) * 0.0215963866053;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 3]) * 0.0443683338718;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 4]) * 0.0776744219933;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 5]) * 0.115876621105;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 6]) * 0.147308056121;
+  gl_FragColor += texture2D(Image, v_texCoord         ) * 0.159576912161;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 7]) * 0.147308056121;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 8]) * 0.115876621105;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[ 9]) * 0.0776744219933;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[10]) * 0.0443683338718;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[11]) * 0.0215963866053;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[12]) * 0.00895781211794;
+  gl_FragColor += texture2D(Image, v_blurTexCoords[13]) * 0.0044299121055113265;
+}
+
+)END";
+
+// TODO: tune this parameter.
+const float VideoRenderer::kFullStrengthBlurRadius = 0.1;
+
+/** blur_x and blur_y are divided by this factor every decay tick. */
+const float VideoRenderer::kBlurDecayFactorPerTick = 1.5f;
+
+/** 60 ticks per second. */
+const clock_t VideoRenderer::kBlurDecayTick = CLOCKS_PER_SEC / 60;
 
 VideoRenderer *VideoRenderer::instance = NULL;
 
@@ -68,10 +166,11 @@ void VideoRenderer::ResizeCallback(const int width, const int height) {
 }
 
 void VideoRenderer::TimerCallback(int ignored) {
-    glutPostRedisplay();
+  instance->HandleTimerTick();
+  glutPostRedisplay();
 
-    // Cap at 500fps, I guess.
-    glutTimerFunc(2, TimerCallback, 0);
+  // Cap at 500fps, I guess.
+  glutTimerFunc(2, TimerCallback, 0);
 }
 
 VideoRenderer::VideoRenderer() {
@@ -89,9 +188,17 @@ VideoRenderer::~VideoRenderer() {
     glDeleteTextures(1, &kv.second);
   }
 
+  glDeleteFramebuffers(1, &this->blur_fb.id);
+
   glDeleteShader(this->pass_through_vertex_shader);
   glDeleteShader(this->hard_light_fragment_shader);
   glDeleteProgram(this->image_blend_shaderprogram.id);
+
+  glDeleteShader(this->gaussian_x_vertex_shader);
+  glDeleteShader(this->gaussian_y_vertex_shader);
+  glDeleteShader(this->gaussian_fragment_shader);
+  glDeleteProgram(this->blur_x_shaderprogram.id);
+  glDeleteProgram(this->blur_y_shaderprogram.id);
 }
 
 void VideoRenderer::Init(int argc, char *argv[]) {
@@ -115,6 +222,9 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   // Compile shaders.
   this->CompileShaders();
 
+  // Create framebuffer object.
+  glGenFramebuffers(1, &this->blur_fb.id);
+
   // Set callback functions.
   glutDisplayFunc(DrawFrameCallback);
   glutReshapeFunc(ResizeCallback);
@@ -124,8 +234,6 @@ void VideoRenderer::Init(int argc, char *argv[]) {
   glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
   glutSwapBuffers();
-
-  glUseProgram(this->image_blend_shaderprogram.id);
 }
 
 void VideoRenderer::DoGlutLoop() {
@@ -158,6 +266,32 @@ void VideoRenderer::CompileShaders() {
       glGetUniformLocation(this->image_blend_shaderprogram.id, "BaseImage");
   this->image_blend_shaderprogram.BlendColor =
       glGetUniformLocation(this->image_blend_shaderprogram.id, "BlendColor");
+
+  // Compile the shaders for gaussian blur, then link two separate programs.
+  this->gaussian_x_vertex_shader =
+      this->CompileShader(VideoRenderer::kGaussianXVertexShader, GL_VERTEX_SHADER);
+  this->gaussian_y_vertex_shader =
+      this->CompileShader(VideoRenderer::kGaussianYVertexShader, GL_VERTEX_SHADER);
+  this->gaussian_fragment_shader =
+      this->CompileShader(VideoRenderer::kGaussianFragmentShader, GL_FRAGMENT_SHADER);
+
+  this->blur_x_shaderprogram.id = glCreateProgram();
+  glAttachShader(this->blur_x_shaderprogram.id, this->gaussian_x_vertex_shader);
+  glAttachShader(this->blur_x_shaderprogram.id, this->gaussian_fragment_shader);
+  glLinkProgram(this->blur_x_shaderprogram.id);
+  this->blur_x_shaderprogram.BlurRadius =
+      glGetUniformLocation(this->blur_x_shaderprogram.id, "BlurRadius");
+  this->blur_x_shaderprogram.Image =
+      glGetUniformLocation(this->blur_x_shaderprogram.id, "Image");
+
+  this->blur_y_shaderprogram.id = glCreateProgram();
+  glAttachShader(this->blur_y_shaderprogram.id, this->gaussian_y_vertex_shader);
+  glAttachShader(this->blur_y_shaderprogram.id, this->gaussian_fragment_shader);
+  glLinkProgram(this->blur_y_shaderprogram.id);
+  this->blur_y_shaderprogram.BlurRadius =
+      glGetUniformLocation(this->blur_y_shaderprogram.id, "BlurRadius");
+  this->blur_y_shaderprogram.Image =
+      glGetUniformLocation(this->blur_y_shaderprogram.id, "Image");
 }
 
 GLuint VideoRenderer::CompileShader(const char *&shader_text, GLenum shader_type) {
@@ -260,11 +394,30 @@ bool VideoRenderer::SetImage(const string& image_name, const AudioResource::Beat
   }
 
   this->current_image = this->images[image_name];
-  glutPostRedisplay();
 
+  string transition_type = "";
+  switch(transition) {
+    case AudioResource::Beat::VERTICAL_BLUR:
+      this->blur_y = 1.f;
+      transition_type = ", type: [Y_BLUR]";
+      break;
+    case AudioResource::Beat::HORIZONTAL_BLUR:
+      this->blur_x = 1.f;
+      transition_type = ", type: [X_BLUR]";
+      break;
+    case AudioResource::Beat::NO_BLUR:
+      transition_type = ", type: [PLAIN]";
+      break;
+    case AudioResource::Beat::IMAGE_ONLY:
+      transition_type = ", type: [IMG_ONLY]";
+      break;
+    default: break;
+  }
+
+  glutPostRedisplay();
   pthread_rwlock_unlock(&this->render_lock);
 
-  LOG("Starting transition to [" + image_name + "].");
+  LOG("Transition in: [" + image_name + "]" + transition_type);
   return true;
 }
 
@@ -291,6 +444,14 @@ void VideoRenderer::DrawFrame() {
 
   // Make sure we have a image to draw, first.
   if (this->current_image) {
+    // Render to texture if we want to blur.
+    if (this->blur_x > 0 || this->blur_y > 0) {
+      this->MarkRenderToTexture();
+    }
+
+    // Set image blend program.
+    glUseProgram(this->image_blend_shaderprogram.id);
+
     // Set shader program uniforms.
     GLuint texture = this->textures[this->current_image->GetName()];
     glUniform1i(this->image_blend_shaderprogram.BaseImage, 0);
@@ -300,11 +461,34 @@ void VideoRenderer::DrawFrame() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex2f(0, 0);
-        glTexCoord2f(1, 0); glVertex2f(this->window_width, 0);
-        glTexCoord2f(1, 1); glVertex2f(this->window_width, this->window_height);
-        glTexCoord2f(0, 1); glVertex2f(0, this->window_height);
+        glVertex2f(0, 0);
+        glVertex2f(this->window_width, 0);
+        glVertex2f(this->window_width, this->window_height);
+        glVertex2f(0, this->window_height);
     glEnd();
+
+    // Now handle drawing the blurred image to screen.
+    if (this->blur_x > 0 || this->blur_y > 0) {
+      // Not ideal, but there needs to be a way to pick the blur direction active when they're both
+      // above zero? Maybe?
+      struct blurprogram *prog =
+          (this->blur_x > this->blur_y) ? &this->blur_x_shaderprogram : &this->blur_y_shaderprogram;
+      float blur = (this->blur_x > this->blur_y) ? this->blur_x : this->blur_y;
+
+      this->MarkRenderToScreen();
+      glUseProgram(prog->id);
+      glUniform1i(prog->Image, 0);
+      glUniform1f(prog->BlurRadius, VideoRenderer::kFullStrengthBlurRadius * blur);
+
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, this->blur_fb.tex_id);
+      glBegin(GL_QUADS);
+          glVertex2f(0, 0);
+          glVertex2f(this->window_width, 0);
+          glVertex2f(this->window_width, this->window_height);
+          glVertex2f(0, this->window_height);
+      glEnd();
+    }
   }
 
   // Render.
@@ -329,4 +513,57 @@ void VideoRenderer::HandleResize(const int width, const int height) {
 
   this->window_width = width;
   this->window_height = height;
+
+  this->InitFramebuffer();
+}
+
+void VideoRenderer::InitFramebuffer() {
+  // We need to bind the framebuffer before doing anything related to it, it seems.
+  glBindFramebuffer(GL_FRAMEBUFFER, this->blur_fb.id);
+
+  // Delete the previous texture if there was one.
+  if (this->blur_fb.tex_id != 0) {
+    glDeleteTextures(1, &this->blur_fb.tex_id);
+    this->blur_fb.tex_id = 0;
+  }
+
+  // Generate a texture and set parameters.
+  glGenTextures(1, &this->blur_fb.tex_id);
+  glBindTexture(GL_TEXTURE_2D, this->blur_fb.tex_id);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, this->window_width, this->window_height, 0,
+      GL_RGBA, GL_UNSIGNED_BYTE, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+      this->blur_fb.tex_id, 0);
+
+  // Tell the framebuffer to draw to the attached color buffer.
+  static GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+  glDrawBuffers(1, DrawBuffers);
+
+  // Unbind the current texture and framebuffer.
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void VideoRenderer::HandleTimerTick() {
+  if ((this->blur_x > 0 || this->blur_y > 0)
+        && (clock() - this->last_blur_decay_tick >= VideoRenderer::kBlurDecayTick)) {
+    this->blur_x /= VideoRenderer::kBlurDecayFactorPerTick;
+    this->blur_y /= VideoRenderer::kBlurDecayFactorPerTick;
+
+    this->last_blur_decay_tick = clock();
+  }
+
+  this->blur_x = this->blur_x < .001 ? 0 : this->blur_x;
+  this->blur_y = this->blur_y < .001 ? 0 : this->blur_y;
+}
+
+void VideoRenderer::MarkRenderToTexture() {
+  glBindFramebuffer(GL_FRAMEBUFFER, this->blur_fb.id);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+void VideoRenderer::MarkRenderToScreen() {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
