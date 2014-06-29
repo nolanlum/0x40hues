@@ -70,10 +70,6 @@ void HuesLogic::SongLoop(const AudioResource& song, const AudioResource::Type so
   const double beat_length_usec = song.GetBeatDurationUsec(song_type);
   const double song_length_usec = song.GetSongDurationUsec(song_type);
 
-  assert(song.GetChannelCount(song_type) == 2);
-  assert(song.GetSampleRate(song_type) == 44100);
-  a->PlayAudio(song.GetPcmData(song_type), song.GetPcmDataSize(song_type));
-
   // Wait until the previous song has actually ended.
   while (clock() < this->next_song_ok) {
       usleep(100);
@@ -81,6 +77,10 @@ void HuesLogic::SongLoop(const AudioResource& song, const AudioResource::Type so
   this->next_song_ok =
       (clock_t) ((((double) clock()) / CLOCKS_PER_SEC + (song_length_usec / 1000. / 1000.))
           * CLOCKS_PER_SEC);
+
+  assert(song.GetChannelCount(song_type) == 2);
+  assert(song.GetSampleRate(song_type) == 44100);
+  a->PlayAudio(song.GetPcmData(song_type), song.GetPcmDataSize(song_type));
 
   for (int cur_beat = 0; cur_beat < beat_count ; cur_beat++) {
     AudioResource::Beat beat_type = AudioResource::ParseBeatCharacter(beatmap.at(cur_beat));
