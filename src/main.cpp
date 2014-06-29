@@ -28,11 +28,6 @@ int main(int argc, char **argv) {
   pthread_create(&render_thread_id, NULL, video_renderer, NULL);
 
   // What is a race condition?
-  sleep(2);
-  v->SetImage("Miku", AudioResource::Beat::NO_BLUR);
-  v->SetColor(0b011101);
-  sleep(10);
-
   vector<ImageResource*> imgs;
   p->GetAllImages(imgs);
   for (;;) {
@@ -42,7 +37,7 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i < 0x40; i++) {
       v->SetColor(i);
-      usleep(1000 * 300);
+      usleep(1000 * 200);
     }
   }
 

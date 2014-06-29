@@ -49,7 +49,7 @@ varying vec2 vTexCoord;
 
 // Apply alpha channel to the texture by blending with white.
 void applyAlpha(in vec4 base, out vec3 result) {
-  result = mix(vec3(1.0), base.rgb, base.a);
+  result = mix(vec3(1.0), base.rgb, vec3(base.a));
 }
 
 // Alpha-unaware hard light blend function.
@@ -66,14 +66,14 @@ void hardLight(in vec3 base, in vec3 blend, out vec3 result) {
 }
 
 void main() {
-  vec4 base = texture2D(BaseImage, vTexCoord);
+  vec3 base;
   vec3 blend = vec3(BlendColor);
   vec3 result;
 
   // Apply hard light blend with .7 opacity.
-  applyAlpha(base, result);
-  hardLight(result, blend, result);
-  result = mix(base, result, .7);
+  applyAlpha(texture2D(BaseImage, vTexCoord), base);
+  hardLight(base, blend, result);
+  result = mix(base, result, vec3(.7));
   gl_FragColor = vec4(result, 1);
 }
 )END";
