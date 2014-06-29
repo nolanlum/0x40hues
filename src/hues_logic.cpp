@@ -85,7 +85,7 @@ void HuesLogic::SongLoop(const AudioResource& song, const AudioResource::Type so
   for (int cur_beat = 0; cur_beat < beat_count ; cur_beat++) {
     AudioResource::Beat beat_type = AudioResource::ParseBeatCharacter(beatmap.at(cur_beat));
 
-    // Wait until the previous beat's has ended.
+    // Wait until the previous beat has ended.
     while (clock() < this->next_beat_ok) {
       usleep(100);
     }
