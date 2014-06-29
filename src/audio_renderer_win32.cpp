@@ -45,11 +45,6 @@ bool AudioRenderer::Init(const int channels, const int sample_rate) {
 }
 
 void AudioRenderer::PlayAudio(const uint8_t* const pcm_data, const size_t len) {
-  FILE *f = fopen("dicks.pcm", "wb");
-  fwrite(pcm_data, 1, len, f);
-  fflush(f);
-  fclose(f);
-
   this->_->wavebuf.dwBufferLength = len;
   this->_->wavebuf.dwFlags = 0;
   this->_->wavebuf.lpData = reinterpret_cast<char*>(const_cast<uint8_t*>(pcm_data));
