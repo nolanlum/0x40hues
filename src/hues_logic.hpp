@@ -51,6 +51,7 @@ class HuesLogic {
     static void* VideoRendererEntryPoint(void *_this);
 
     clock_t next_beat_ok = 0;
+    clock_t next_song_ok = 0;
 
     ResourcePack *respack;
     AudioRenderer *a;

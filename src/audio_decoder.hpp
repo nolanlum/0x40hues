@@ -48,17 +48,25 @@ class AudioDecoder {
 
     uint8_t* Decode(int *sample_count, int *channel_count, int *sample_rate);
 
+  private:
+
+    void CheckLameGaplessHeader();
+
     static enum mad_flow MadInputCallback(void *decoder, struct mad_stream *stream);
     static enum mad_flow MadOutputCallback(void *decoder, struct mad_header const *header,
         struct mad_pcm *pcm);
     static enum mad_flow MadErrorCallback(void *decoder, struct mad_stream *stream,
         struct mad_frame *frame);
 
-  private:
-
     Dither left_dither, right_dither;
 
     bool input_read;
+
+    struct {
+      int total_samples;
+      int delay;
+      int padding;
+    } gapless;
 
     int sample_rate = 0;
     int sample_count = 0;

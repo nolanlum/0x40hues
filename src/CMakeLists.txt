@@ -10,6 +10,7 @@ include_directories(
 
 SET(HUES_HEADERS
     "audio_decoder.hpp"
+    "audio_renderer.hpp"
     "common.hpp"
     "filesystem.hpp"
     "hues_logic.hpp"
@@ -23,6 +24,14 @@ SET(HUES_SOURCES
     "main.cpp"
     "respack.cpp"
     "video_renderer.cpp")
+
+IF(WIN32)
+    SET(HUES_SOURCES
+        ${HUES_SOURCES}
+        "audio_renderer_win32.cpp")
+ELSEIF(APPLE)
+ELSEIF(UNIX)
+ENDIF()
 
 foreach(f IN LISTS HUES_SOURCES)
     get_filename_component(b ${f} NAME)

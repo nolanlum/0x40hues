@@ -159,16 +159,30 @@ public:
 
   string GetTitle() const { return song_title; }
   string GetName(const Type type) const {
-    return type == Type::LOOP ? this->loop.name : this->buildup.name;
+    return (type == Type::LOOP ? this->loop : this->buildup).name;
   }
   string GetBeatmap(const Type type) const {
-    return type == Type::LOOP ? this->loop.beatmap : this->buildup.beatmap;
+    return (type == Type::LOOP ? this->loop : this->buildup).beatmap;
+  }
+  int GetSongDurationUsec(const Type type) const {
+    return (int) ((type == Type::LOOP ? this->loop : this->buildup).sample_count
+        * (type == Type::LOOP ? this->loop : this->buildup).sample_rate / 1000.f / 1000.f);
   }
   int GetBeatDurationUsec(const Type type) const {
-    return type == Type::LOOP ? this->loop.usec_per_beat : this->buildup.usec_per_beat;
+    return (type == Type::LOOP ? this->loop : this->buildup).usec_per_beat;
   }
-  const uint8_t* GetPcmData(const Type type) const {
-    return type == Type::LOOP ? this->loop.pcm_data : this->buildup.pcm_data;
+  uint8_t* GetPcmData(const Type type) const {
+    return (type == Type::LOOP ? this->loop : this->buildup).pcm_data;
+  }
+  size_t GetPcmDataSize(const Type type) const {
+    return (type == Type::LOOP ? this->loop : this->buildup).sample_count
+      * GetChannelCount(type) * /* bytes per sample */ 2;
+  }
+  int GetChannelCount(const Type type) const {
+    return (type == Type::LOOP ? this->loop : this->buildup).channel_count;
+  }
+  int GetSampleRate(const Type type) const {
+    return (type == Type::LOOP ? this->loop : this->buildup).sample_rate;
   }
 
   /**
