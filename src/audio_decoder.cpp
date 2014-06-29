@@ -1,5 +1,7 @@
 #include <sys/stat.h>
 
+#include <cstdio>
+
 #include <audio_decoder.hpp>
 
 uint8_t* AudioDecoder::Decode(int *sample_count, int *channel_count, int *sample_rate) {
@@ -12,8 +14,11 @@ uint8_t* AudioDecoder::Decode(int *sample_count, int *channel_count, int *sample
   mad_decoder_run(&decoder, MAD_DECODER_MODE_SYNC);
   mad_decoder_finish(&decoder);
 
-  // 16 bits per sample.
-  int decoded_buffer_size = this->channel_count * 2 * this->sample_count;
+  // 16 bits per sample. Also ensure it's word-aligned.
+  int decoded_buffer_size = (this->channel_count * 2 * this->sample_count);
+  int padding = ((decoded_buffer_size + 3) & ~3) - decoded_buffer_size;
+  decoded_buffer_size += padding;
+
   if (sample_count) {
     *sample_count = this->sample_count;
   }
@@ -34,8 +39,11 @@ uint8_t* AudioDecoder::Decode(int *sample_count, int *channel_count, int *sample
   uint8_t *cur_pos = buffer;
   for(pair<int, uint8_t*> buf : this->decoded_buffers) {
     memcpy(cur_pos, buf.second, buf.first);
+    cur_pos += buf.first;
+
     delete[] buf.second;
   }
+  memset(cur_pos, 0, padding);
   this->decoded_buffers.clear();
 
   return buffer;
@@ -99,7 +107,7 @@ enum mad_flow AudioDecoder::MadErrorCallback(void *decoder, struct mad_stream *s
   AudioDecoder *_this = static_cast<AudioDecoder*>(decoder);
 
   char errorbuffer[1024];
-  sprintf(errorbuffer, "libmad decoding error 0x%04x (%s) at byte offset %llu.",
+  snprintf(errorbuffer, 1024, "libmad decoding error 0x%04x (%s) at byte offset %llu.",
     stream->error, mad_stream_errorstr(stream), stream->this_frame - _this->audio_data);
   ERR(errorbuffer);
 
