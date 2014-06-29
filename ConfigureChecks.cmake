@@ -5,6 +5,10 @@ INCLUDE(CheckLibraryExists)
 IF(WIN32)
     SET(CMAKE_EXE_LINKER_FLAGS "-static")
     SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+
+    # Also make it a Windows application on Release. So a console doesn't pop up every time.
+    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wl,--subsystem,windows -mwindows")
+    SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -mwindows")
 ENDIF(WIN32)
 
 # Ignore depreciation warnings on OSX because GLUT is deprecated.
