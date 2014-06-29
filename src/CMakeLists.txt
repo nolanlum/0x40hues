@@ -12,14 +12,16 @@ SET(HUES_HEADERS
     "audio_decoder.hpp"
     "common.hpp"
     "filesystem.hpp"
+    "hues_logic.hpp"
     "respack.hpp"
     "video_renderer.hpp")
 
 SET(HUES_SOURCES
     ${HUES_HEADERS}
     "audio_decoder.cpp"
-    "respack.cpp"
+    "hues_logic.cpp"
     "main.cpp"
+    "respack.cpp"
     "video_renderer.cpp")
 
 foreach(f IN LISTS HUES_SOURCES)

@@ -42,6 +42,11 @@ class VideoRenderer {
     void LoadTextures(const ResourcePack &respack);
 
     /**
+     * Blocks until all textures are loaded into memory.
+     */
+    void WaitForTextureLoad();
+
+    /**
      * Set an Image for the next DrawFrame()
      *
      * @param image_name the name of the next image to show.
@@ -52,6 +57,13 @@ class VideoRenderer {
     bool SetImage(const string& image_name, const AudioResource::Beat transition);
 
     /**
+     * Set an Image for the next DrawFrame(). The Image is randomly chosen among all loaded images.
+     *
+     * @param transition the type of beat transition to draw.
+     */
+    void SetImage(const AudioResource::Beat transition);
+
+    /**
      * Set a color for the next DrawFrame()
      *
      * @param color_index the index of the color to draw. Must be in the interval [0,0x40).
@@ -60,6 +72,11 @@ class VideoRenderer {
      *         otherwise.
      */
     bool SetColor(const int color_index);
+
+     /**
+     * Set a color for the next DrawFrame(). The color is randomly chosen.
+     */
+    void SetColor();
 
   private:
 
@@ -77,8 +94,11 @@ class VideoRenderer {
     /** Updates class info based on a window resize event. */
     void HandleResize(const int width, const int height);
 
+    vector<string> texture_name_list;
     unordered_map<string, GLuint> textures;
     unordered_map<string, ImageResource*> images;
+
+    bool textures_loaded = false;
 
     int window_height = -1;
     int window_width = -1;
@@ -97,6 +117,8 @@ class VideoRenderer {
     } image_blend_shaderprogram;
 
     pthread_rwlock_t render_lock;
+    pthread_mutex_t load_mutex;
+    pthread_cond_t load_cv;
 
     // THIS IS HELL AND YOU ARE THE DEVIL.
     static VideoRenderer *instance;

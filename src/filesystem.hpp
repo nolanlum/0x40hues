@@ -21,12 +21,12 @@
 using namespace std;
 
 namespace FileSystem {
-  bool Exists(const string& filename) {
+  inline bool Exists(const string& filename) {
     struct stat buf;
     return stat(filename.c_str(), &buf) != -1;
   }
 
-  void ListDirectory(const string& dir_name, vector<string>* const dir_list) {
+  inline void ListDirectory(const string& dir_name, vector<string>* const dir_list) {
 #ifdef WIN32
     // TODO(nolm): implement me.
     #error "Not yet implemented!"

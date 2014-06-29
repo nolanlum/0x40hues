@@ -1,59 +1,12 @@
-#include <pthread.h>
-#include <unistd.h>
-
-#include <iostream>
-
-#include <respack.hpp>
-#include <video_renderer.hpp>
-
-static VideoRenderer *v;
-static ResourcePack *p;
-
-// Video renderer thread entry point.
-void* video_renderer(void *) {
-  const char *argv[] { "" };
-  v->Init(1, const_cast<char **>(argv));
-  v->LoadTextures(*p);
-  v->DoGlutLoop();
-  pthread_exit(EXIT_SUCCESS);
-  return 0;
-}
+#include <hues_logic.hpp>
 
 int main(int argc, char **argv) {
-  p = new ResourcePack("../respacks/Default/");
-  if (!p->Init()) {
+  HuesLogic h;
+  if (!h.TryLoadRespack()) {
     exit(EXIT_FAILURE);
   }
 
-  vector<AudioResource*> songs;
-  p->GetAllSongs(songs);
-  AudioResource *s = songs[0];
-
-  int sample_count, channel_count;
-  s->ReadAndDecode(AudioResource::Type::LOOP, &sample_count, &channel_count);
-  LOG("Read [" + s->GetTitle() + "]: " + to_string(sample_count) + " samples, "
-      + to_string(channel_count) + " channels.");
-
-  v = new VideoRenderer();
-
-  pthread_t render_thread_id;
-  pthread_create(&render_thread_id, NULL, video_renderer, NULL);
-
-  // What is a race condition?
-  vector<ImageResource*> imgs;
-  p->GetAllImages(imgs);
-  for (;;) {
-    sleep(2);
-    v->SetImage(imgs[rand() % imgs.size()]->GetName(), AudioResource::Beat::NO_BLUR);
-    rand();
-
-    for (int i = 0; i < 0x40; i++) {
-      v->SetColor(i);
-      usleep(1000 * 200);
-    }
-  }
-
-  pthread_join(render_thread_id, NULL);
-  pthread_exit(0);
+  h.InitDisplay();
+  h.PlaySong("Madeon - Finale");
 }
 

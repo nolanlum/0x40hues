@@ -76,8 +76,23 @@ void VideoRenderer::TimerCallback(int ignored) {
 
 VideoRenderer::VideoRenderer() {
   pthread_rwlock_init(&this->render_lock, NULL);
+  pthread_mutex_init(&this->load_mutex, NULL);
+  pthread_cond_init(&this->load_cv, NULL);
 }
-VideoRenderer::~VideoRenderer() {}
+
+VideoRenderer::~VideoRenderer() {
+  pthread_rwlock_destroy(&this->render_lock);
+  pthread_mutex_destroy(&this->load_mutex);
+  pthread_cond_destroy(&this->load_cv);
+
+  for (auto const& kv : this->textures) {
+    glDeleteTextures(1, &kv.second);
+  }
+
+  glDeleteShader(this->pass_through_vertex_shader);
+  glDeleteShader(this->hard_light_fragment_shader);
+  glDeleteProgram(this->image_blend_shaderprogram.id);
+}
 
 void VideoRenderer::Init(int argc, char *argv[]) {
   // Set preferred window size and location.
@@ -172,6 +187,10 @@ GLuint VideoRenderer::CompileShader(const char *&shader_text, GLenum shader_type
 }
 
 void VideoRenderer::LoadTextures(const ResourcePack &respack) {
+  pthread_mutex_lock(&this->load_mutex);
+  this->textures_loaded = false;
+  pthread_mutex_unlock(&this->load_mutex);
+
   vector<ImageResource*> images;
   respack.GetAllImages(images);
 
@@ -208,9 +227,27 @@ void VideoRenderer::LoadTextures(const ResourcePack &respack) {
     glBindTexture(GL_TEXTURE_2D, (GLuint) NULL);
 
     delete[] image_bytes;
+
+    texture_name_list.push_back(image->GetName());
     this->images[image->GetName()] = image;
     this->textures[image->GetName()] = texture;
   }
+
+  pthread_mutex_lock(&this->load_mutex);
+  this->textures_loaded = true;
+  pthread_cond_broadcast(&this->load_cv);
+  pthread_mutex_unlock(&this->load_mutex);
+}
+
+void VideoRenderer::WaitForTextureLoad() {
+  pthread_mutex_lock(&this->load_mutex);
+  if (this->textures_loaded) {
+    pthread_mutex_unlock(&this->load_mutex);
+    return;
+  }
+
+  pthread_cond_wait(&this->load_cv, &this->load_mutex);
+  pthread_mutex_unlock(&this->load_mutex);
 }
 
 bool VideoRenderer::SetImage(const string& image_name, const AudioResource::Beat transition) {
@@ -234,6 +271,13 @@ bool VideoRenderer::SetImage(const string& image_name, const AudioResource::Beat
 bool VideoRenderer::SetColor(const int color_index) {
   this->current_color = (color_index < 0) ? 0 : (color_index % 0x40);
   return true;
+}
+
+void VideoRenderer::SetImage(const AudioResource::Beat transition) {
+  this->SetImage(this->texture_name_list[rand() %this->texture_name_list.size()], transition);
+}
+void VideoRenderer::SetColor() {
+  this->SetColor(rand());
 }
 
 void VideoRenderer::DrawFrame() {
