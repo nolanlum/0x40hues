@@ -46,7 +46,7 @@ class AudioDecoder {
         audio_data(buffer), audio_data_length(length) {}
     ~AudioDecoder() {}
 
-    uint8_t* Decode(int *sample_count, int *channel_count);
+    uint8_t* Decode(int *sample_count, int *channel_count, int *sample_rate);
 
     static enum mad_flow MadInputCallback(void *decoder, struct mad_stream *stream);
     static enum mad_flow MadOutputCallback(void *decoder, struct mad_header const *header,
@@ -60,6 +60,7 @@ class AudioDecoder {
 
     bool input_read;
 
+    int sample_rate = 0;
     int sample_count = 0;
     int channel_count = 0;
     vector<pair<int, uint8_t*>> decoded_buffers;

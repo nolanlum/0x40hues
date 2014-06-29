@@ -221,10 +221,10 @@ DECODE_RETURN:
 //                     A u d i o R e s o u r c e
 // =====================================================================
 
-uint8_t* AudioResource::ReadAndDecode(const Type audio_type, int* sample_count, int* channel_count)
-    const {
-  string file_name = this->base_path + "/Songs/"
-      + (audio_type == Type::LOOP ? this->loop_name : this->buildup_name) + ".mp3";
+void AudioResource::ReadAndDecode(const Type audio_type) {
+  struct song_info *song = (audio_type == Type::LOOP) ? &this->loop : &this->buildup;
+
+  string file_name = this->base_path + "/Songs/" + song->name + ".mp3";
   ifstream audio_file(file_name, ifstream::binary);
 
   if (audio_file) {
@@ -236,9 +236,19 @@ uint8_t* AudioResource::ReadAndDecode(const Type audio_type, int* sample_count, 
     audio_file.read(reinterpret_cast<char*>(buffer), file_length);
 
     AudioDecoder decoder(buffer, file_length);
-    return decoder.Decode(sample_count, channel_count);
+    song->pcm_data = decoder.Decode(&song->sample_count, &song->channel_count, &song->sample_rate);
+
+    // Calculate length of each beat. If there is no beatmap, the song is one long beat.
+    if (song->beatmap.empty()) {
+      song->usec_per_beat = (int) ((float) song->sample_count / song->sample_rate * 1000 * 1000);
+    } else {
+      song->usec_per_beat = (int) ((float) song->sample_count / song->sample_rate
+          * 1000 * 1000 / song->beatmap.length());
+    }
+
+    LOG("Loaded [" + file_name + "]: " + to_string(song->beatmap.length()) + " beats at "
+        + to_string(song->usec_per_beat) + " usec each.");
   } else {
     ERR("Unable to open audio file [" + file_name + "] for read!");
-    return NULL;
   }
 }

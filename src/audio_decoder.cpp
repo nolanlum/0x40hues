@@ -2,7 +2,7 @@
 
 #include <audio_decoder.hpp>
 
-uint8_t* AudioDecoder::Decode(int *sample_count, int *channel_count) {
+uint8_t* AudioDecoder::Decode(int *sample_count, int *channel_count, int *sample_rate) {
   struct mad_decoder decoder;
   input_read = false;
 
@@ -19,6 +19,9 @@ uint8_t* AudioDecoder::Decode(int *sample_count, int *channel_count) {
   }
   if (channel_count) {
     *channel_count = this->channel_count;
+  }
+  if (sample_rate) {
+    *sample_rate = this->sample_rate;
   }
 
   uint8_t *buffer = new uint8_t[decoded_buffer_size];
@@ -58,6 +61,7 @@ enum mad_flow AudioDecoder::MadOutputCallback(void *decoder, struct mad_header c
   AudioDecoder *_this = static_cast<AudioDecoder*>(decoder);
 
   _this->channel_count        = pcm->channels;
+  _this->sample_rate          = pcm->samplerate;
   int current_sample_count    = pcm->length;
   mad_fixed_t const *left_ch  = pcm->samples[0];
   mad_fixed_t const *right_ch = pcm->samples[1];

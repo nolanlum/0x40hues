@@ -151,30 +151,36 @@ public:
    */
   AudioResource(const string& base_path, const string& song_title,
       const string& loop_name, const string& buildup_name) :
-      base_path(base_path), song_title(song_title),
-      loop_name(loop_name), buildup_name(buildup_name) { }
+      buildup(buildup_name), loop(loop_name),
+      base_path(base_path), song_title(song_title) { }
 
   /** Returns whether or not this song has a buildup. */
-  bool HasBuildup() const { return !this->buildup_name.empty(); }
+  bool HasBuildup() const { return !this->buildup.name.empty(); }
 
   string GetTitle() const { return song_title; }
   string GetName(const Type type) const {
-    return type == Type::LOOP ? this->loop_name : this->buildup_name;
+    return type == Type::LOOP ? this->loop.name : this->buildup.name;
   }
   string GetBeatmap(const Type type) const {
-    return type == Type::LOOP ? this->loop_beatmap : this->buildup_beatmap;
+    return type == Type::LOOP ? this->loop.beatmap : this->buildup.beatmap;
+  }
+  int GetBeatDurationUsec(const Type type) const {
+    return type == Type::LOOP ? this->loop.usec_per_beat : this->buildup.usec_per_beat;
+  }
+  const uint8_t* GetPcmData(const Type type) const {
+    return type == Type::LOOP ? this->loop.pcm_data : this->buildup.pcm_data;
   }
 
   /**
-   * Reads loop/buildup MP3 file (if present), decodes it, and returns it as a stereo, 16 bits
-   * per channel, little-endian PCM stream. The caller is responsible for deallocating the returned
-   * byte array once finished.
+   * Reads loop/buildup MP3 file (if present), decodes it into a 16 bits per channel, little-endian
+   * PCM stream. Once decoded, the appropriate getters can be used to obtain information about this
+   * audio resource.
+   *
+   * If called more than once for the same audio_type, nothing is done.
    *
    * @param audio_type controls whether we decode the loop or beatmap.
-   * @param sample_count OPTIONAL: a pointer to receive the sample count of the decoded audio.
-   * @param channel_count OPTIONAL: a pointer to receive the channel count of the decoded audio.
    */
-  uint8_t* ReadAndDecode(const Type audio_type, int* sample_count, int* channel_count) const;
+  void ReadAndDecode(const Type audio_type);
 
   static Beat ParseBeatCharacter(const char beatChar) {
     switch (beatChar) {
@@ -192,16 +198,24 @@ public:
 
 private:
 
-  void SetBuildupBeatmap(const string& beatmap) { this->buildup_beatmap = beatmap; }
-  void SetLoopBeatmap(const string& beatmap) { this->loop_beatmap = beatmap; }
+  void SetBuildupBeatmap(const string& beatmap) { this->buildup.beatmap = beatmap; }
+  void SetLoopBeatmap(const string& beatmap) { this->loop.beatmap = beatmap; }
 
-  string buildup_beatmap;
-  string loop_beatmap;
+  struct song_info {
+    const string name;
+    string beatmap;
+    uint8_t *pcm_data;
+    int channel_count;
+    int sample_count;
+    int sample_rate;
+    int usec_per_beat;
+
+    song_info(const string& name) : name(name) {}
+  } buildup;
+  struct song_info loop;
 
   const string base_path;
   const string song_title;
-  const string loop_name;
-  const string buildup_name;
 };
 
 #endif // HUES_RESPACK_H_
